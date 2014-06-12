@@ -30,7 +30,8 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 
   which gives: USAGE: clust_dbscan [-h] -i ARG -l ARG -o ARG -x ARG -m ARG -e ARG -s ARG 
 
-  	-h [ --help ]       	Print help messages
+ `` 	
+ 	-h [ --help ]       	Print help messages
   
 	-i [ --dinput ]     	Data Input filename
 	
@@ -44,7 +45,8 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 	
 	-e [ --eps ]        	Epsilon
 	
-	-s [ --simi ]       	Similarity Threshold (if < 0 then no threshold)
+	-s [ --simi ]       	Similarity Threshold (if < 0 then no threshold) 
+ ``
 
 
 ### Usage
