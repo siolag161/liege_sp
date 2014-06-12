@@ -30,7 +30,7 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 
   which gives ./clust_cast [-h] -i ARG -l ARG -o ARG -c ARG -s ARG -m ARG 
   
-   	-h [ --help ]       	Print help messages
+   	  -h [ --help ]       	Print help messages
 
 	  -i [ --dinput ]     	Data Input filename
 	  
@@ -42,7 +42,7 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 	  
 	  -s [ --simi ]       	Similarity
 	  
-  	-m [ --maxDist ]    	Max Distance
+          -m [ --maxDist ]    	Max Distance
 
 ### Usage
 
