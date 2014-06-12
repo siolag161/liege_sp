@@ -21,12 +21,13 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 
 * Create and go to the build directory
 
+```
    cmake ..
-   
    make
-   
+``` 
+
 * Execute to get instruction
-  ../bin/clust_cast -h
+```  ../bin/clust_cast -h ```
 
   which gives ./clust_cast [-h] -i ARG -l ARG -o ARG -c ARG -s ARG -m ARG 
   
