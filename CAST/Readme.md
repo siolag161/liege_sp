@@ -42,7 +42,8 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 	  
 	  -s [ --simi ]       	Similarity
 	  
-          -m [ --maxDist ]    	Max Distance
+	  -m [ --maxDist ]    	Max Distance
+	  
 
 ### Usage
 
