@@ -20,29 +20,30 @@ struct CAST_Item {
   Index globalIndex;
   double affinity;
 
-  CAST_Item(const Index matIdx, const Index glbIdx, const float aff):
+  CAST_Item(const Index matIdx, const Index glbIdx, const double aff):
       matrixIndex(matIdx), globalIndex(glbIdx), affinity(aff) {}
 };
 
 
 typedef int Position;
 typedef std::vector< Position > Positions;
-typedef std::map< unsigned, float > SimiCache;
+typedef std::map< unsigned, double > SimiCache;
 typedef std::vector < std::vector <int> > Matrix;
 
 
 struct SimilarityCompute {
-  explicit SimilarityCompute( const Positions& position,
-                              const Matrix& matrix,
-                              float simiThres,
-                              unsigned maxDist );
+  const double MAX_SIMILARITY = 1.0, MIN_SIMILARITY = 0.0;
+  explicit SimilarityCompute( const Positions& pos ,
+                              const Matrix& mat,
+                              unsigned maxDistance,                                      
+                              double simiThres );
   virtual ~SimilarityCompute() {}
-  virtual float operator()( unsigned, unsigned );
+  virtual double operator()( unsigned, unsigned );
  protected:
   const Positions& positions;
-  const Matrix& matrix;
-  float simiThres;
-  unsigned maxDist;  
+  const Matrix& dataMat;
+  unsigned maxPosition;  
+  double m_simiThres;
 
   std::vector<double> entropyMap;
 
@@ -70,7 +71,7 @@ struct CAST {
   partition_ptr performClustering( SimilarityCompute& simCompute,
                                    CAST_Cluster& unassignedCluster);
  protected:
-  float thresCAST;
+  double thresCAST;
 };
 
 

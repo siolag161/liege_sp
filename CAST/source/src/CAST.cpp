@@ -7,11 +7,16 @@
 #include "CAST.hpp"
 #include <memory>
 
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/median.hpp>
+
+
 namespace fltm {
 /////////////////////////////////////////////////////////////////////////
 
 CAST::partition_ptr CAST::operator()( SimilarityCompute& simCompute,
-                                const std::vector<unsigned>& local2Global ) {
+                                      const std::vector<unsigned>& local2Global ) {
   partition_ptr result(new CAST_Partition);
   if (local2Global.empty())
     return result;
@@ -25,7 +30,7 @@ CAST::partition_ptr CAST::operator()( SimilarityCompute& simCompute,
 
 ///////////////////////////////////////////////////////////////////////////////
 CAST::partition_ptr CAST::performClustering( SimilarityCompute& simCompute, 
-                                       CAST_Cluster& unAssignedCluster) {
+                                             CAST_Cluster& unAssignedCluster) {
   partition_ptr result(new CAST_Partition); // @todo: change the name of the alias
 
   while ( unAssignedCluster.size() ) { 
@@ -38,7 +43,7 @@ CAST::partition_ptr CAST::performClustering( SimilarityCompute& simCompute,
       std::unique_ptr<AffinityCompute> maxCompute(new AffinityCompute);
       std::unique_ptr<AffinityCompute> minCompute(new AffinityCompute);
       while ( unAssignedCluster.size() ) {
-        Index maxAffIdx = (*maxCompute)(unAssignedCluster, std::greater<float>());
+        Index maxAffIdx = (*maxCompute)(unAssignedCluster, std::greater<double>());
         if ( unAssignedCluster.at(maxAffIdx).affinity >= thresCAST*openCluster->size() ) {
           changesOccurred = true;
           addGoodItem( unAssignedCluster, *openCluster, simCompute, maxAffIdx );
@@ -48,7 +53,7 @@ CAST::partition_ptr CAST::performClustering( SimilarityCompute& simCompute,
       }
       maxCompute.reset();
       while( unAssignedCluster.size() ) {      
-        Index minAffIdx = (*minCompute)(*openCluster, std::less<float>());
+        Index minAffIdx = (*minCompute)(*openCluster, std::less<double>());
         if ( openCluster->at(minAffIdx).affinity < thresCAST*openCluster->size() ) {
           changesOccurred = true;
           removeBadItem( unAssignedCluster, *openCluster, simCompute, minAffIdx );
@@ -124,55 +129,75 @@ void moveItemBetweenClusters( CAST_Cluster& source, CAST_Cluster& target, const 
 
 SimilarityCompute::SimilarityCompute( const Positions& pos ,
                                       const Matrix& mat,
-                                      float simiThres_,
-                                      unsigned maxDist_ ):
-    positions(pos), matrix(mat), simiThres(simiThres_), maxDist(maxDist_), entropyMap(std::vector<float> (pos.size(), -1.0))
+                                      unsigned maxPos,                                      
+                                      double simiThres ):
+    positions(pos),
+    dataMat(mat),
+    maxPosition(maxPos),
+    m_simiThres(simiThres),
+    entropyMap(std::vector<double> (pos.size(), -1.0))
 {
-  nbrVars = pos.size();
+  size_t nbrVars = dataMat.size();
+  std::vector<double> entropyMap( nbrVars, -1.0 );
+  boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::median(boost::accumulators::with_p_square_quantile) > > acc; 
+  for ( size_t varA = 0; varA < nbrVars; ++varA) {
+    for ( size_t varB = varA+1; varB < nbrVars; ++varB ) {
+      if ( abs( positions[varA] - positions[varB] ) > maxPos ) continue; //result =  MAX_DISTANCE; // 1.0 = max distance possible
+      
+      size_t nbrVars = positions.size();
+      unsigned key = 2*nbrVars*varA + varB;
+      unsigned nvars = positions.size();
+      std::vector<double> vals;
+  
+      Entropy<EMP> entropy; // empirical entropy (estimates the probability by frequency)
+      JointEntropy<EMP> mutEntropy; // empirial mutual entropy;
+      if ( entropyMap.at(varA) < 0.0 ) { 
+        entropyMap[varA] = entropy( dataMat.at(varA) ); // computes entropy of varA only if not already done
+      }        
+      if ( entropyMap.at(varB) < 0.0 ) { // computes entropy of varB only if not already done
+        entropyMap[varB] = entropy( dataMat.at(varB)) ; // since this operation could be expensive
+      }
+    
+      double minEntropyAB = std::min( entropyMap[varA], entropyMap[varB]); // takes the min
+      if (minEntropyAB != 0) {
+        double mutEntropyAB = mutEntropy( dataMat.at(varA), dataMat.at(varB) );
+        double mutualInfoAB = entropyMap[varA] + entropyMap[varB] - mutEntropyAB; // classic formula
+        double normalizedMutInfo = mutualInfoAB / minEntropyAB;        
+        simiCache[key] = normalizedMutInfo;
+        if ( simiThres > MIN_SIMILARITY )
+          acc(normalizedMutInfo);
+      }
+    }
+  }
+
+  if ( simiThres > MIN_SIMILARITY )
+    m_simiThres = boost::accumulators::median(acc);
+
 }
 
 
-float SimilarityCompute::operator()( unsigned varA,
-                                     unsigned varB )
-{
-  if (varA == varB) return 1.0;
-  if ( abs( positions[varA] - positions[varB] ) > maxDist ) {
-    return 0.0;
-  }
-  
-  unsigned key = 2*nbrVars*varA + varB;
-  SimiCache::iterator iter = simiCache.find(key);
+double SimilarityCompute::operator()( unsigned varA,
+                                      unsigned varB )
+{  
+  double result =  MIN_SIMILARITY; // 1.0 = max distance possible
+  if ( abs( positions[varA] - positions[varB] ) < maxPosition ) {
+    if ( varA == varB ) return MAX_SIMILARITY;
 
-  unsigned nvars = positions.size();
-  std::vector<double> vals;
-  
-  if ( iter == simiCache.end() ) {
-    Entropy<EMP> entropy; // empirical entropy (estimates the probability by frequency)
-    JointEntropy<EMP> mutEntropy; // empirial mutual entropy;
-    if ( entropyMap.at(varA) < 0.0 ) { 
-      entropyMap[varA] = entropy( matrix.at(varA) ); // computes entropy of varA only if not already done
-    }        
-    if ( entropyMap.at(varB) < 0.0 ) { // computes entropy of varB only if not already done
-      entropyMap[varB] = entropy( matrix.at(varB)) ; // since this operation could be expensive
+    size_t nbrVars = dataMat.size();
+    size_t key = 1;
+    if ( varA < varB ) {
+      key = 2*nbrVars*varA + varB;
+    } else {
+      key = 2*nbrVars*varB + varA;
     }
-    
-    double minEntropyAB = std::min( entropyMap[varA], entropyMap[varB]); // takes the min
-    float result = 0.0;
-    if (minEntropyAB != 0) {
-      double mutEntropyAB = mutEntropy( matrix.at(varA), matrix.at(varB) );
-      double mutualInfoAB = entropyMap[varA] + entropyMap[varB] - mutEntropyAB; // classic formula
-      double normalizedMutInfo = mutualInfoAB / minEntropyAB;
-      if (simiThres < 0) {
-        result = (normalizedMutInfo) ;// > simiThres) ? 1.0 : 0.0;
-      } else {
-        result = (normalizedMutInfo > simiThres) ? 1.0 : 0.0;
-      }
-      simiCache[key] =  result;
-    }
-    return result;
-  } else {
-    return iter->second;
+
+    if ( m_simiThres > 0 )
+      result = simiCache[key] > m_simiThres ? MAX_SIMILARITY : MIN_SIMILARITY;
+    else
+      result = simiCache[key];
   }
+
+  return result;
 }
 
 }

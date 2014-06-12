@@ -21,7 +21,7 @@ namespace utl = utility;
 namespace po = boost::program_options;   
 using namespace fltm;     
 
-typedef utility::Range<float, utility::ITER_TYPE_ADD> FloatRange;
+typedef utility::Range<double, utility::ITER_TYPE_ADD> DoubleRange;
 typedef utility::Range<unsigned, utility::ITER_TYPE_ADD> IntRange;
 
 CAST::partition_ptr performClustering( const Matrix& matrix,
@@ -29,11 +29,11 @@ CAST::partition_ptr performClustering( const Matrix& matrix,
                                        const std::vector<Position>& positions,
                                        const Clust_CAST_Opt& opt );
 
-float evaluateClustering( const CAST_Partition& clustering, unsigned nbrVars );
+double evaluateClustering( const CAST_Partition& clustering, unsigned nbrVars );
 // void saveResults( boost::filesystem::path& path,
 //                   Clust_CAST_Opt& opt,
 //                   const CAST_Partition& clustering,
-//                   const float score,
+//                   const double score,
 //                   const double elapsedTime );
 
 
@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
   outputPath /= timeBuf;
   boost::filesystem::create_directories(outputPath);
 
-  //std::vector<float> scores; std::vector<Clust_CAST_Opt> opts; std::vector<double> times;
+  //std::vector<double> scores; std::vector<Clust_CAST_Opt> opts; std::vector<double> times;
 
   printf("Parameters: maxDist: %u, simi: %.2f, cast: %.2f\n",  progOpt.maxDist, progOpt.simi, progOpt.CAST );
   Clust_CAST_Opt option( progOpt.maxDist, progOpt.simi, progOpt.CAST );
@@ -126,8 +126,8 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
         ("lpinput,l", po::value<std::string>(&result.labPosInFile)->required(), "Label-Pos Input filename")
         ("outputDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Directory")
 
-        ("cast,c", po::value<float>(&result.CAST)->required(), "CAST")
-        ("simi,s", po::value<float>(&result.simi)->required(), "Similarity")
+        ("cast,c", po::value<double>(&result.CAST)->required(), "CAST")
+        ("simi,s", po::value<double>(&result.simi)->required(), "Similarity")
         ("maxDist,m", po::value<unsigned>(&result.maxDist)->required(), "Max Distance")
 
         ;
@@ -231,7 +231,7 @@ CAST::partition_ptr performClustering( const Matrix& matrix,
   return clustering;
 }
 
-float evaluateClustering( const CAST_Partition& clustering, unsigned nbrVars ) {
+double evaluateClustering( const CAST_Partition& clustering, unsigned nbrVars ) {
 
   if (nbrVars <= 1 ) return 0.0;
   const unsigned cltSz = clustering.size();
@@ -253,13 +253,13 @@ float evaluateClustering( const CAST_Partition& clustering, unsigned nbrVars ) {
     }
   }
 
-  float eval = (diffCount +1 - cltSz)*1.0 / (diffCount);
+  double eval = (diffCount +1 - cltSz)*1.0 / (diffCount);
   return eval;
 }
 // void saveResults( boost::filesystem::path& outputPath,
 //                   Clust_CAST_Opt& opt,
 //                   const CAST_Partition& clustering,
-//                   const float score,
+//                   const double score,
 //                   const double elapsedTime )
 // {   
 //   char cast_clustering_fn[256], cast_statistics_fn[256];
@@ -303,7 +303,7 @@ void saveClustering( const CAST_Partition& clustering, const std::vector<unsigne
   clustOut.close();
 }
 
-// void saveStatistics( const CAST_Partition& clustering, const float score, const float elapsedTime, std::string statisticFN ) {
+// void saveStatistics( const CAST_Partition& clustering, const double score, const double elapsedTime, std::string statisticFN ) {
 
 //   std::ofstream statOut(statisticFN);
 //   statOut << "CAST clustering gives: 0 " << clustering.size() << " clusters. "

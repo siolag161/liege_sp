@@ -17,13 +17,13 @@ struct ApplicationOptions
   
   int hasHeader; // indicates whether the input file contains a header row
 
-  float CAST;
-  // float CAST_max;
-  // float CAST_step;
+  double CAST;
+  // double CAST_max;
+  // double CAST_step;
 
-  float simi; 
-  // float simi_max;
-  // float simi_step;
+  double simi; 
+  // double simi_max;
+  // double simi_step;
 
   unsigned maxDist;
   // unsigned maxDist_max;

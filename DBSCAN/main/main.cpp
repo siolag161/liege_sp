@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
 
   std::cout << "Clustering begin...please be patient..." << std::endl;
   MutInfoDistance<Matrix> mutInfoDist( matrix, positions, progOpt.maxPos, progOpt.simiThres );
+
   DBSCAN dbscan;
   dbscan( matrix, mutInfoDist, progOpt.minPts, progOpt.eps );  
   

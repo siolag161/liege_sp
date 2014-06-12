@@ -45,11 +45,11 @@ ApplicationOptions getProgramOptions(int argc, char** argv);
 
 
 void saveClustering( const fltm::CAST_Partition& clustering, const std::vector<unsigned>& ids, std::string clustFN ) ;
-// void saveStatistics( const fltm::CAST_Partition& clustering, const float score, const float elapsedTime, std::string statisticFN );
+// void saveStatistics( const fltm::CAST_Partition& clustering, const double score, const double elapsedTime, std::string statisticFN );
 ////////////////////////////// RANGE_ITERATOR ///////////////////////////////////////////
 struct Clust_CAST_Opt {
-  Clust_CAST_Opt(unsigned mD, float s, float c): maxDist(mD), simi(s), cast(c) {}
-  unsigned maxDist; float simi; float cast;
+  Clust_CAST_Opt(unsigned mD, double s, double c): maxDist(mD), simi(s), cast(c) {}
+  unsigned maxDist; double simi; double cast;
 };
 
 /****************************************************************************************/

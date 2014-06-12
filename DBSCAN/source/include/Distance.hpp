@@ -56,7 +56,7 @@ struct MutInfoDistance {
 
   
   std::vector<float> entropyMap;
-  std::map< size_t, double > simiCache;
+  std::map< size_t, double > distCache;
 
   double m_median;
 };
@@ -107,21 +107,23 @@ MutInfoDistance<DM>::MutInfoDistance( DM& dm, std::vector<int>& pos, unsigned ma
         double mutEntropyAB = mutEntropy( dataMat.at(varA), dataMat.at(varB) );
         double mutualInfoAB = entropyMap[varA] + entropyMap[varB] - mutEntropyAB; // classic formula
         double normalizedMutInfo = mutualInfoAB / minEntropyAB;        
-        result = normalizedMutInfo;
-        simiCache[key] =  result;
-        if ( thres >  0 )
+        result = MAX_DISTANCE - normalizedMutInfo;
+        distCache[key] =  result;
+        if ( thres > MIN_DISTANCE )
           acc(result);
       }
     }
   }
 
-  if ( thres > 0.0 )
+  if ( thres > MIN_DISTANCE ) 
     m_thres = boost::accumulators::median(acc);
+
+  std::cout << "median = " << m_thres << std::endl;
 }
 
 template<class DM>
 double MutInfoDistance<DM>::operator()( unsigned varA, unsigned varB ) {
-  double result =  MAX_DISTANCE; // 1.0 = max distance possible
+  double result = MAX_DISTANCE; // 1.0 = max distance possible
 
   if ( abs( positions[varA] - positions[varB] ) < maxPosition ) {
     if ( varA == varB ) return MIN_DISTANCE;
@@ -135,9 +137,9 @@ double MutInfoDistance<DM>::operator()( unsigned varA, unsigned varB ) {
     }
 
     if ( m_thres > 0 )
-      result = simiCache[key] > m_thres ? MAX_DISTANCE : MIN_DISTANCE;
+      result = ( distCache[key] > m_thres ) ? MAX_DISTANCE : MIN_DISTANCE;
     else
-      result = simiCache[key];
+      result = distCache[key];
   }
 
   return result;
