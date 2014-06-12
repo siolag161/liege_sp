@@ -11,9 +11,10 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 
 * Modify the CMake configuration file, especially modify these two attributes Boost_INCLUDE_DIR and Boost_LIB_DIR
 
+```
   set(Boost_INCLUDE_DIR `PATH_TO_BOOST_INCLUDE_DIRECTORY` )
-  
   set(Boost_LIBRARY_DIR `PATH_TO_BOOST_DIRECTORY_DIRECTORY` )
+```
 
 * Create and go to the build directory
  
@@ -21,16 +22,20 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 
 * Create and go to the build directory
 
+```
    cmake ..
    
    make
-   
+```
+
 * This will create 2 executables, one for test and one for the main program
-  ../bin/clust_dbscan -h
+  ``` ../bin/clust_dbscan -h ```
 
-  which gives: USAGE: clust_dbscan [-h] -i ARG -l ARG -o ARG -x ARG -m ARG -e ARG -s ARG 
+  which gives: 
 
- `` 	
+```	
+USAGE: clust_dbscan [-h] -i ARG -l ARG -o ARG -x ARG -m ARG -e ARG -s ARG 
+
  	-h [ --help ]       	Print help messages
   
 	-i [ --dinput ]     	Data Input filename
@@ -46,7 +51,8 @@ In order to compile the code in a Linux environment, one can proceed as follows:
 	-e [ --eps ]        	Epsilon
 	
 	-s [ --simi ]       	Similarity Threshold (if < 0 then no threshold) 
- ``
+	
+```
 
 
 ### Usage
