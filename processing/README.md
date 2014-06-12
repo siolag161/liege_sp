@@ -1,5 +1,4 @@
-##  bed2clust.sh ## 
-
+##  bed2clust.sh 
 ### usage:
 
 ``` ./bed2clust.sh -i PATH_TO_INPUT_BED_FILE -p PATH_TO_PLINK -g CODING  -o PATH_TO_OUTPUT_DIR ```
