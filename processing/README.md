@@ -23,5 +23,11 @@ where:
         and rows denoting observations. `,` is used as delimiter.
      - `out/chr02/casecontrol_filtered_label.csv` a csv data where rows are SNPs.
         4 columns denoting: `chromosome`, `id`, `label` ("SNP_A-1865133_A"..), and `position` on the chromosome
- 
+
+
+### Under the hood:
+* This script call PLINK to transform `.bed` to `.ped` ( which is why path to PLINK has to be specified ). A recoding has to be applied to transform the `genotype coding` to obtain `numeric coding` i.e. one of ADDITIVE/RECESSIVE/DOMINANT. Only ADDITIVE is supported for the time being. 
+* Accompagnied with the `.bed` file we have a `.bim` which speficies the location of the SNPs ( i.e `chromosome`, ` genomic location` ...) sometimes the `chromosome` of these SNPs don't match while they are supposed to be the same for all. Typically a few SNPs at the beginning and at the end of the file do not have the same `chromosome` field value as the rest. This is the reason we have to take an addition step to filter out these SNPs, resulting in a sub-set of SNPs.
+* In the output file, the `id` field represents the original `id` ( not necessarily starting as `0` )
+
 

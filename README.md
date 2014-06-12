@@ -1,16 +1,22 @@
 liege_sp
 ========
 
-# Introduction
+### Introduction
 In this workspace found several sub-directories which contain GWAS data processing scriptrs and implementations 
 for clustering algorithms.
 
-# Clustering Algorithms
+### Clustering Algorithms
 
-## CAST algorithms
-## DBSCAN
++ CAST algorithms
++# DBSCAN
 
 
-# Processing 
+### Processing 
 
-# .bed file to Clustering INPUT
++ .bed file to Clustering INPUT
+
+### Working pileline
+
+1. For each GWAS dataset( `.bed` ), split to obtain 23 separate files, one for each chromosome
+2. Use the script to convert a `.bed` to a `.csv` file compatible with the clustering algorithms
+3. Perform the cluster analysis on the generated output
