@@ -5,7 +5,7 @@
 
 where:
 
-```
+
 * PATH_TO_INPUT_BED_FILE: the path to the input .bed file
 * PATH_TO_PLINK: path to PLINK program directory
 * CODING: 
