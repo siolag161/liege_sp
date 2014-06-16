@@ -105,7 +105,7 @@ double Entropy<EstimationMethodT>::compute(XIterator xBegin, XIterator xEnd, uti
   }
     
   double xLogSum = accumulate( xCountMap.begin(), xCountMap.end(), 0.0, sumLogCount<unsigned> );
-  double enp = log(vecLen) - 1/vecLen*xLogSum;
+  double enp = log2(vecLen) - 1/vecLen*xLogSum;
 
   return enp;
 }
@@ -131,7 +131,7 @@ double JointEntropy<EstimationMethodT>::compute( XIterator xBegin, XIterator xEn
   double jointLogSum = accumulate(jointCountMap.begin(), jointCountMap.end(),
                                   0.0, sumLogCount<IntPair>);
    
-  return log(vecLen) - 1/vecLen*(jointLogSum);
+  return log2(vecLen) - 1/vecLen*(jointLogSum);
 }
 
 
@@ -157,7 +157,7 @@ template<typename T>
 double sumLogCount(double &total, const std::pair<T, unsigned>& counter)
 {
   double count = double(counter.second);
-  return total + count*log(count);
+  return total + count*log2(count);
 }
 
 
