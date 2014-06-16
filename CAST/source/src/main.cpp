@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 
   char cast_clustering_fn[256];
   char optBuf[80]; 
-  sprintf( optBuf, "%.2f_%d_%.2f",  progOpt.maxDist, progOpt.simi, progOpt.CAST );
+  sprintf( optBuf, "%s_%u_.2f",  type_CAST, progOpt.maxDist, progOpt.CAST );
   sprintf( cast_clustering_fn, "CAST_clustering_%s.txt", optBuf );  
   saveClustering( *clustering, ids, (outputPath / cast_clustering_fn).string() ) ;
   
