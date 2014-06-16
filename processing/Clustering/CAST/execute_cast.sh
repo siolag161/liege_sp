@@ -67,6 +67,7 @@ fi
 for D in `find ${IN_PATH} -type d`
 do
     CHR_DIR=$(basename $D)
+    echo "${EXE}/clust_cast -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/CAST/${CHR_DIR} -c ${CAST} -s ${SIMI} -m ${MAX_DIST} "
     eval "${EXE}/clust_cast -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/CAST/${CHR_DIR} -c ${CAST} -s ${SIMI} -m ${MAX_DIST} "
     #eval  "./bed2clust.sh -i ${D}/casecontrol_filtered -o ${OUT_PATH} -g ${GENO_TYPE} -p ${PLINK}"
 done
