@@ -171,7 +171,11 @@ std::shared_ptr<Matrix> loadDataTable( const std::string& infile, const char& se
   std::shared_ptr<Matrix> dt( new Matrix() );
   dt->reserve(100000);
   std::ifstream matrixFile(infile.c_str());
-  if (!matrixFile) return dt;
+  if (!matrixFile) {
+    std::cout << "not exist!!!! exiting programing...\n\n";
+    exit(-1);
+    return dt;
+  }
   
   utl::CSVIterator<int> matrixLine(matrixFile);
   
@@ -194,7 +198,11 @@ void loadLabelPosition( std::vector<Label> & labels,
                         std::vector<Position>& positions,
                         const std::string& infile ) { 
   std::ifstream labPosFile(infile.c_str());
-  if (!labPosFile) return;
+  if (!labPosFile) {
+    std::cout << "not exist!!!! exiting programing...\n\n";
+    exit(-1);
+    return;
+  }
   std::vector<Label>().swap(labels); //lab2Pos.clear();
   std::vector<Position>().swap(positions); //.clear();
   utl::CSVIterator<std::string> labPosLine(labPosFile);// ++labPosLine;
