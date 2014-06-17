@@ -51,7 +51,7 @@ with open(out_path, 'w') as ffp:
 	    for row in reader:
 		nrow = headers
 		nrow[1:] = row
-		chr_int = chr2int(fn)
+		chr_int = chr2int(chr)
 		BASE = snp_counts[chr_int - 1]
 		current_id = int(row[0])
 		parent_id = int(row[2])
