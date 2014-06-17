@@ -27,7 +27,7 @@ import csv
 
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
-with open(cout_path, 'r') as f:
+with open(count_path, 'r') as f:
     reader = csv.reader( f, delimiter=',')
     for row in reader:
 	snp = int(row[0])
