@@ -29,22 +29,22 @@ import csv
 
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
-NBR_CHRS = 25
-snp_counts = [0]*NBR_CHRS
+NBR_CHRS = 23
+snp_counts = [0]*(NBR_CHRS+1)
 with open(count_path, 'r') as f:
     reader = csv.reader( f, delimiter=',')
-    tmp = [0]*NBR_CHRS
+    tmp = [0]*(NBR_CHRS+2)
     for row in reader:
 	snp = int(row[0])
 	count = int(row[1])
 	tmp[snp] = count
 
-    for i in range( NBR_CHRS - 1):
+    for i in range( NBR_CHRS + 1):
 	tmp[i+1] += tmp[i]
 
-    for i in range( NBR_CHRS - 2):
+    for i in range( NBR_CHRS + 1 ):
 	snp_counts[i+1] = tmp[i]
-
+	
     #snp
 
 with open("snp_base_id.txt", 'w') as f:
