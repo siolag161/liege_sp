@@ -74,6 +74,6 @@ do
     #eval  "./bed2clust.sh -i ${D}/casecontrol_filtered -o ${OUT_PATH} -g ${GENO_TYPE} -p ${PLINK}"
 done
 
-echo "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/clustering_$(PARAMS).txt"
+echo "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/clustering_${PARAMS}.txt"
 
 
