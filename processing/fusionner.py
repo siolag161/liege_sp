@@ -59,7 +59,7 @@ with open(out_path, 'w') as ffp:
 		nrow[1] = current_id + BASE
 		if (parent_id > 0):
 		    nrow[3] = parent_id + BASE
-		else
+		else:
 		    neg_count += 1
 		fw.writerow(nrow)
 	    print neg_count
