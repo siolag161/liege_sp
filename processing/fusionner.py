@@ -30,22 +30,27 @@ import csv
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
 NBR_CHRS = 23
-snp_counts = [0]*(NBR_CHRS+1)
-with open(count_path, 'r') as f:
-    reader = csv.reader( f, delimiter=',')
+snp_counts = [0]*(NBR_CHRS+1)    
+for fn in files:
+    chr = chr_from_name(fn)
+    chr_int = chr2int(chr)
     tmp = [0]*(NBR_CHRS+2)
-    for row in reader:
-	snp = int(row[0])
-	count = int(row[1])
-	tmp[snp] = count
+    max_id = -1
+    with open( join(path,fn), 'r') as f:
+	reader = csv.reader( f, delimiter=',')
+	reader.next()
+	for row in reader:
+	    current_id = int(row[0])
+	    if (current_id > max_id):
+		max_id = current_id	
+    tmp[chr_int] = max_id + 1
 
-    for i in range( NBR_CHRS + 1):
-	tmp[i+1] += tmp[i]
-
+for i in range( NBR_CHRS + 1):
+    tmp[i+1] += tmp[i]
     for i in range( NBR_CHRS ):
 	snp_counts[i+1] = tmp[i]
 	
-    #snp
+	
 
 with open("snp_base_id.txt", 'w') as f:
     fw = csv.writer( f, delimiter=',', quoting=csv.QUOTE_NONE )
