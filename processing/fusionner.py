@@ -34,7 +34,7 @@ snp_counts = [0]*NBR_CHRS
 with open(count_path, 'r') as f:
     reader = csv.reader( f, delimiter=',')
     for row in reader:
-	snp = int(row[0]) - 1
+	snp = int(row[0])
 	count = int(row[1])
 	snp_counts[snp] = count
 
