@@ -38,6 +38,7 @@ neg_count = 0
 with open(out_path, 'w') as ffp:
     headers = ['id', 'latent', 'parent', 'level', 'cardinality']
     fw = csv.writer( ffp, delimiter=',', quoting=csv.QUOTE_NONE )
+    fw.writerow(headers)
     for fn in files:
 	#base_id = base_id_from_name(fn)	
 	with open( join(path,fn), 'r') as f:
@@ -54,6 +55,7 @@ with open(out_path, 'w') as ffp:
 		    row[2] = parent_id + BASE
 		else:
 		    neg_count += 1
+		fw.writerow(row)
 
 	    print neg_count
 	    print
