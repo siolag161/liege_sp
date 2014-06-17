@@ -70,10 +70,10 @@ for D in `find ${IN_PATH} -type d`
 do
     CHR_DIR=$(basename $D)
     echo "${EXE}/clust_cast -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/CAST/${CHR_DIR}_${PARAMS}.txt -c ${CAST} -s ${SIMI} -m ${MAX_DIST} -v 1 "
-    # eval "${EXE}/clust_cast -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/CAST/${DATE}/${CHR_DIR}_${PARAMS}.txt -c ${CAST} -s ${SIMI} -m ${MAX_DIST} -v 1 "
+    eval "${EXE}/clust_cast -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/CAST/${DATE}/${CHR_DIR}_${PARAMS}.txt -c ${CAST} -s ${SIMI} -m ${MAX_DIST} -v 1 "
     #eval  "./bed2clust.sh -i ${D}/casecontrol_filtered -o ${OUT_PATH} -g ${GENO_TYPE} -p ${PLINK}"
 done
 
 echo "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/clustering_${PARAMS}.txt"
-
+eval "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/clustering_${PARAMS}.txt"
 
