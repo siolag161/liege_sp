@@ -5,7 +5,7 @@ import sys
 
 path = sys.argv[1]
 out_path = sys.argv[2]
-count_path = sys.argv[3]
+#count_path = sys.argv[3]
 
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
@@ -30,11 +30,11 @@ import csv
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
 NBR_CHRS = 23
-snp_counts = [0]*(NBR_CHRS+1)    
+snp_counts = [0]*(NBR_CHRS+1)
+tmp = [0]*(NBR_CHRS+2)
 for fn in files:
     chr = chr_from_name(fn)
     chr_int = chr2int(chr)
-    tmp = [0]*(NBR_CHRS+2)
     max_id = -1
     with open( join(path,fn), 'r') as f:
 	reader = csv.reader( f, delimiter=',')
@@ -44,6 +44,8 @@ for fn in files:
 	    if (current_id > max_id):
 		max_id = current_id	
     tmp[chr_int] = max_id + 1
+
+
 
 for i in range( NBR_CHRS + 1):
     tmp[i+1] += tmp[i]
