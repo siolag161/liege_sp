@@ -42,8 +42,10 @@ with open(count_path, 'r') as f:
     for i in range( NBR_CHRS - 1):
 	tmp[i+1] += tmp[i]
 
-    for i in range( NBR_CHRS - 1):
+    for i in range( NBR_CHRS - 2):
 	snp_counts[i+1] = tmp[i]
+
+    #snp
 
 with open("snp_base_id.txt", 'w') as f:
     fw = csv.writer( f, delimiter=',', quoting=csv.QUOTE_NONE )
