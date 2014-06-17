@@ -40,7 +40,7 @@ with open(count_path, 'r') as f:
 	tmo[snp] = count
 
     for i in range( NBR_CHRS - 1):
-	tmp[i+1] += snp_counts[i]
+	tmp[i+1] += tmp[i]
 
     for i in range( NBR_CHRS - 1):
 	snp_counts[i+1] = tmp[i]
