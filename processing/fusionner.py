@@ -40,13 +40,19 @@ with open(count_path, 'r') as f:
 
     for i in range( NBR_CHRS - 1):
 	snp_counts[i+1] += snp_counts[i]
-	
+
+with open("snp_base_id.txt", 'w') as f:
+    #headers = [ 'chr','id', 'latent', 'parent', 'level', 'cardinality']
+    fw = csv.writer( f, delimiter=',', quoting=csv.QUOTE_NONE )
+    for i in range( NBR_CHRS):
+	fw.writerow( [i, snp_counts[i]]  )
+	#snp_counts[i+1] += snp_counts[i]
 
 neg_count = 0
 with open(out_path, 'w') as ffp:
     headers = [ 'chr','id', 'latent', 'parent', 'level', 'cardinality']
     fw = csv.writer( ffp, delimiter=',', quoting=csv.QUOTE_NONE )
-    fw.writerow(headers)
+    #fw.writerow(headers)
     for fn in files:
 	chr = chr_from_name(fn)
 	with open( join(path,fn), 'r') as f:
@@ -66,7 +72,7 @@ with open(out_path, 'w') as ffp:
 		    nrow[3] = parent_id + BASE
 		else:
 		    neg_count += 1
-		fw.writerow(nrow)
+		#fw.writerow(nrow)
 	    print neg_count
 	    print
 
