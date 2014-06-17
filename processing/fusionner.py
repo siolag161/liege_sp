@@ -37,7 +37,7 @@ with open(count_path, 'r') as f:
     for row in reader:
 	snp = int(row[0])
 	count = int(row[1])
-	tmo[snp] = count
+	tmp[snp] = count
 
     for i in range( NBR_CHRS - 1):
 	tmp[i+1] += tmp[i]
