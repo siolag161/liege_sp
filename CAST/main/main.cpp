@@ -237,24 +237,42 @@ static const std::string PARENT_ID = "parent_id";
 static const char SEPARATOR = ',';
 
 void saveClustering( const CAST_Partition& clustering, const std::vector<unsigned>& ids, std::string clustFN )  {
-  size_t currentLatentIndex = ids[ids.size()-1] + 1;
   std::ofstream clustOut(clustFN);
   clustOut << ID << SEPARATOR << LATENT << SEPARATOR << PARENT << SEPARATOR
            << LEVEL << SEPARATOR << CARDINALITY << "\n";  // writes header
 
   std::cout << "saving clustering of " << clustering.size() << " clusters into " << clustFN << std::endl;
+  // for ( auto iter = clustering.begin(); iter != clustering.end(); ++iter ) {
+  //   for ( auto citer = iter->second->begin(); citer != iter->second->end(); ++citer ) {
+  //     // clustOut << citer->globalIndex << SEPARATOR << 0 << SEPARATOR <<  currentLatentIndex << SEPARATOR
+  //     //          << 0 << SEPARATOR << 2 << std::endl;  // writes header
+  //     if ( dbscan.get_labels()[var] >= 0 )
+  //       clustOut << ids[var] << SEPARATOR << 0 << SEPARATOR << ( dbscan.get_labels()[var] + max_id ) << SEPARATOR
+  //              << 0 << SEPARATOR << 3 << "\n";
+  //     else
+  //       clustOut << ids[var] << SEPARATOR << 0 << SEPARATOR << ( dbscan.get_labels()[var] ) << SEPARATOR
+  //              << 0 << SEPARATOR << 3 << "\n";
+  //   }
+  //   ;
+  // }
+  
+  size_t currentLatentIndex = ids[ids.size()-1] + 1;
   for ( auto iter = clustering.begin(); iter != clustering.end(); ++iter ) {
     for ( auto citer = iter->second->begin(); citer != iter->second->end(); ++citer ) {
-      clustOut << citer->globalIndex << SEPARATOR << 0 << SEPARATOR <<  currentLatentIndex << SEPARATOR
-               << 0 << SEPARATOR << 2 << std::endl;  // writes header
+      int id_parent = -1;
+      if ( iter->second->size() > 1) {
+        id_parent = currentLatentIndex++;
+      }
+      clustOut << citer->globalIndex << SEPARATOR << 0 << SEPARATOR << id_parent << SEPARATOR
+               << 0 << SEPARATOR << 3 << std::endl;  // writes header
     }
-    ++currentLatentIndex;
   }
 
   for (size_t latentId = ids[ids.size()-1] + 1; latentId < currentLatentIndex; ++latentId) {
     clustOut << latentId << SEPARATOR << 1 << SEPARATOR << -1 << SEPARATOR
-             << 1 << SEPARATOR << 2 << std::endl;  // writes header
+             << 1 << SEPARATOR << 3 << std::endl;  // writes header
   }
 
+ 
   clustOut.close();
 }

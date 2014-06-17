@@ -58,8 +58,6 @@ fi
 
 for D in `find ${GENOME_DIR} -type d`
 do
-    echo "${D}/casecontrol_filtered"
-    #echo "$(basename ${D})"
     CHR_DIR=$(basename $D)
     eval  "./bed2clust.sh -i ${D}/casecontrol_filtered -o ${OUT_PATH} -g ${GENO_TYPE} -p ${PLINK}"
 done

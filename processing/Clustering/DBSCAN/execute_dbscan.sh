@@ -79,5 +79,5 @@ do
     echo "${EXE}/clust_dbscan -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/DBSCAN/${DATE}/${CHR_DIR}_${PARAMS}.txt -e ${EPS} -s ${SIMI} -m ${MIN_PTS} -x ${MAX_POS} -v 1"
     eval "${EXE}/clust_dbscan -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/DBSCAN/${DATE}/${CHR_DIR}_${PARAMS}.txt -e ${EPS} -s ${SIMI} -m ${MIN_PTS} -x ${MAX_POS} -v 1"
 done
-echo "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/DBSCAN/${DATE}/clustering_${PARAMS}.txt"
-eval "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/DBSCAN/${DATE}/clustering_${PARAMS}.txt"
+echo "./fusionner.py  ${OUT_PATH}/DBSCAN/${DATE}/ ${OUT_PATH}/DBSCAN/${DATE}/clustering_${PARAMS}.txt"
+eval "./fusionner.py  ${OUT_PATH}/DBSCAN/${DATE}/ ${OUT_PATH}/DBSCAN/${DATE}/clustering_${PARAMS}.txt"

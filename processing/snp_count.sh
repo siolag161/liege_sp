@@ -46,6 +46,6 @@ do
     CHR_DIR=$(basename $D)
     #echo $D
 #=$(basename $D)
-    eval "wc -l ${D}/casecontrol_filtered_label.csv"
+    eval "wc -l ${D}/casecontrol_filtered.bim"
     # echo ${SNP_COUNT}
 done
