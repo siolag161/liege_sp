@@ -29,7 +29,7 @@ import csv
 
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
-NBR_CHRS = 24
+NBR_CHRS = 25
 snp_counts = [0]*NBR_CHRS
 with open(count_path, 'r') as f:
     reader = csv.reader( f, delimiter=',')
@@ -41,12 +41,13 @@ with open(count_path, 'r') as f:
     for i in range( NBR_CHRS - 1):
 	snp_counts[i+1] += snp_counts[i]
 
+    for i in range( NBR_CHRS - 1):
+	snp_counts[i+1] = snp_counts[i]
+
 with open("snp_base_id.txt", 'w') as f:
-    #headers = [ 'chr','id', 'latent', 'parent', 'level', 'cardinality']
     fw = csv.writer( f, delimiter=',', quoting=csv.QUOTE_NONE )
     for i in range( NBR_CHRS):
 	fw.writerow( [i, snp_counts[i]]  )
-	#snp_counts[i+1] += snp_counts[i]
 
 neg_count = 0
 with open(out_path, 'w') as ffp:
