@@ -9,7 +9,6 @@ count_path = sys.argv[3]
 
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
-snp_counts = {}
 BASE_ID = 1e6
 
 def chr_from_name(fn):
@@ -30,12 +29,18 @@ import csv
 
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
 
+NBR_CHRS = 24
+snp_counts = [0]*NBR_CHRS
 with open(count_path, 'r') as f:
     reader = csv.reader( f, delimiter=',')
     for row in reader:
-	snp = int(row[0])
+	snp = int(row[0]) - 1
 	count = int(row[1])
 	snp_counts[snp] = count
+
+    for i in range( NBR_CHRS - 1):
+	snp_counts[i+1] += snp_counts[i]
+	
 
 neg_count = 0
 with open(out_path, 'w') as ffp:
@@ -52,7 +57,7 @@ with open(out_path, 'w') as ffp:
 		nrow = headers
 		nrow[1:] = row
 		chr_int = chr2int(chr)
-		BASE = snp_counts[chr_int - 1]
+		BASE = snp_counts[chr_int]
 		current_id = int(row[0])
 		parent_id = int(row[2])
 		nrow[0] = chr
