@@ -7,7 +7,6 @@
 #include "DataTransformation.hpp"
 #include "Range.hpp"
 
-#include "main.hpp"
 
 #include <iostream> 
 #include <fstream>
@@ -17,6 +16,9 @@
 
 #include "Clustering.hpp"
 #include "CAST.hpp"
+
+#include "main.hpp"
+
 namespace utl = utility;
 namespace po = boost::program_options;   
 using namespace fltm;     
@@ -30,51 +32,43 @@ CAST::partition_ptr performClustering( const Matrix& matrix,
                                        const Clust_CAST_Opt& opt );
 
 double evaluateClustering( const CAST_Partition& clustering, unsigned nbrVars );
-// void saveResults( boost::filesystem::path& path,
-//                   Clust_CAST_Opt& opt,
-//                   const CAST_Partition& clustering,
-//                   const double score,
-//                   const double elapsedTime );
-
 
 int main(int argc, char** argv) {
   
   ApplicationOptions progOpt = getProgramOptions(argc, argv);
 
-   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
-   std::vector<Label> labels; std::vector<Position> positions; std::vector<unsigned> ids;
-   std::cout << "loading data from " <<  progOpt.dataInFile << std::endl; // todo: logging
-   std::shared_ptr<Matrix> matrix = loadDataTable ( progOpt.dataInFile );
+  utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
+  std::vector<Label> labels; std::vector<Position> positions; std::vector<unsigned> ids;
+  std::cout << "loading data from " <<  progOpt.dataInFile << std::endl; // todo: logging
+  std::shared_ptr<Matrix> matrix = loadDataTable ( progOpt.dataInFile );
   
-   loadLabelPosition( labels, ids, positions, progOpt.labPosInFile );
+  loadLabelPosition( labels, ids, positions, progOpt.labPosInFile );
+  std::cout << "data loaded. rows: " << utl::nrow(*matrix) << ", columns: "
+            << utl::ncol(*matrix) << ". takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
+  timer.restart();
+ 
+  printf("Parameters: maxDist: %u, simi: %.2f, cast: %.2f\n",  progOpt.maxDist, progOpt.simi, progOpt.CAST );
+  Clust_CAST_Opt option( progOpt.maxDist, progOpt.simi, progOpt.CAST );
+  std::string type_CAST = progOpt.simi > 0 ? "binary" : "real";
+  std::cout << "performing CAST clustering (" << type_CAST << ")." << std::endl;
 
-   std::cout << "data loaded. rows: " << utl::nrow(*matrix) << ", columns: "
-             << utl::ncol(*matrix) << ". takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
-   timer.restart();
+  auto clustering = performClustering( *matrix, ids, positions, option );
 
-   boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
-   char timeBuf[80];  
-   time_t now = time(0); struct tm tstruct;
-   tstruct = *localtime(&now);  
-   strftime(timeBuf, sizeof(timeBuf), "%Y_%m_%d_%H_%M_%S", &tstruct);
-   outputPath /= timeBuf;
-   boost::filesystem::create_directories(outputPath);
+  boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
+  std::string outputFileName = outputPath.string();
 
-   //std::vector<double> scores; std::vector<Clust_CAST_Opt> opts; std::vector<double> times;
-
-   printf("Parameters: maxDist: %u, simi: %.2f, cast: %.2f\n",  progOpt.maxDist, progOpt.simi, progOpt.CAST );
-   Clust_CAST_Opt option( progOpt.maxDist, progOpt.simi, progOpt.CAST );
-   std::string type_CAST = progOpt.simi > 0 ? "binary" : "real";
-   std::cout << "performing CAST clustering (" << type_CAST << ")." << std::endl;
-
-
-   auto clustering = performClustering( *matrix, ids, positions, option );
-   char cast_clustering_fn[256];
-   char optBuf[80]; 
-   sprintf( optBuf, "%s_%u_%.2f",  type_CAST.c_str(), progOpt.maxDist, progOpt.CAST );
-   sprintf( cast_clustering_fn, "CAST_clustering_%s.txt", optBuf );  
-   saveClustering( *clustering, ids, (outputPath / cast_clustering_fn).string() ) ;
-
+  if ( !progOpt.verbose ) {     
+    boost::filesystem::create_directories(outputPath);
+    char cast_clustering_fn[256];
+    char optBuf[80]; 
+    sprintf( optBuf, "%s_%u_%.2f",  type_CAST.c_str(), progOpt.maxDist, progOpt.CAST );
+    sprintf( cast_clustering_fn, "CAST_clustering_%s.txt", optBuf );
+    outputFileName = (outputPath / cast_clustering_fn).string();
+  } else {
+    boost::filesystem::create_directories(outputPath.parent_path());
+  }
+   
+  saveClustering( *clustering, ids, outputFileName ) ;
 }
 
 
@@ -97,6 +91,7 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
         ("cast,c", po::value<double>(&result.CAST)->required(), "CAST")
         ("simi,s", po::value<double>(&result.simi)->required(), "Similarity")
         ("maxDist,m", po::value<unsigned>(&result.maxDist)->required(), "Max Distance")
+        ("verbose,v", po::value<int>(&result.verbose)->default_value(0), "Verbose")
 
         ;
     po::variables_map vm; 

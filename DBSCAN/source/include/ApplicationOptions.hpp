@@ -8,6 +8,7 @@
 #ifndef _APPLICATIONOPTIONS_HPP
 #define _APPLICATIONOPTIONS_HPP
 
+#include <string>
 struct ApplicationOptions
 {
   std::string dataInFile; // input filename
@@ -21,7 +22,8 @@ struct ApplicationOptions
   unsigned maxPos;
   double eps;
   double simiThres;
- 
+  
+  // std::string chr; 
   ApplicationOptions(): hasHeader(true) {}
 };
 

@@ -29,6 +29,7 @@ struct ApplicationOptions
   // unsigned maxDist_max;
   // unsigned maxDist_step;
 
+  int verbose;
   ApplicationOptions(): hasHeader(true) {}
 };
 

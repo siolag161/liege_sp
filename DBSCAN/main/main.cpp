@@ -30,7 +30,7 @@ typedef std::vector< std::vector<int> > Matrix;
 using namespace clustering;
 ApplicationOptions getProgramOptions(int argc, char** argv);
 void saveClustering( const DBSCAN& dbscan, const std::vector<unsigned>& ids, std::string clustFN );
-
+void checkInputFiles( std::string& path, std::string filename );
 /**
  * @todo: merge this and CAST
  */
@@ -42,8 +42,9 @@ int main(int argc, char** argv) {
   std::vector<Label> labels; std::vector<Position> positions; std::vector<unsigned> ids;
   Matrix matrix;
   std::cout << "loading data from " <<  progOpt.dataInFile << std::endl; // todo: logging
+  checkInputFiles( progOpt.dataInFile, " data"); checkInputFiles( progOpt.labPosInFile, "label file");
   loadDataTable ( matrix, progOpt.dataInFile );
-  loadLabelPosition( labels, ids, positions, progOpt.labPosInFile );
+  loadLabelPosition( labels, ids, positions, progOpt.labPosInFile );  
 
   std::cout << "data loaded. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
@@ -69,13 +70,16 @@ int main(int argc, char** argv) {
 
   char cast_clustering_fn[256];
   char optBuf[80]; 
-  sprintf( optBuf, "%u_%.2f_%u_%.2f",  progOpt.minPts, progOpt.eps, progOpt.maxPos, progOpt.simiThres );
-  sprintf( cast_clustering_fn, "DBSCAN_clustering_%s.txt", optBuf );
+  sprintf( optBuf, "%u_%.2f_%u",  progOpt.minPts, progOpt.eps, progOpt.maxPos );
+
+  if ( progOpt.simiThres > 0 ) {
+    sprintf( cast_clustering_fn, "DBSCAN_clustering_binary_%s.txt", optBuf );
+  } else {
+    sprintf( cast_clustering_fn, "DBSCAN_clustering_real_%s.txt", optBuf );
+  }
 
   std::cout << "writing result into " <<  (outputPath / cast_clustering_fn).string() << std::endl; // todo: logging
-
-  saveClustering( dbscan, ids, (outputPath / cast_clustering_fn).string() ) ;
-  
+  saveClustering( dbscan, ids, (outputPath / cast_clustering_fn).string() ) ;  
   
 }
 
@@ -95,7 +99,7 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
         ("dinput,i", po::value<std::string>(&result.dataInFile)->required(), "Data Input filename")
         ("lpinput,l", po::value<std::string>(&result.labPosInFile)->required(), "Label-Pos Input filename")
         ("outputDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Directory")
-
+ 
         ("maxPos,x", po::value<unsigned>(&result.maxPos)->required(), "Max Position")
         ("minPts,m", po::value<unsigned>(&result.minPts)->required(), "Min Points")
         ("eps,e", po::value<double>(&result.eps)->required(), "Epsilon")
@@ -167,4 +171,16 @@ void saveClustering( const DBSCAN& dbscan, const std::vector<unsigned>& ids, std
 
   clustOut.close();
 
+}
+
+
+/** checks if input exists and exists on giving the error message
+ *
+ */
+void checkInputFiles( std::string& path, std::string filename ) {
+  if ( !boost::filesystem::exists( path ) )
+  {
+    std::cout << "Can't find " << filename << " at " << path << "! Program will now close." << std::endl;
+    exit(-1);
+  }
 }

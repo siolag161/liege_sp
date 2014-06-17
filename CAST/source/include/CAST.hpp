@@ -9,6 +9,7 @@
 #define CLUSTERING_CAST_HPP
 
 #include "Clustering.hpp"
+#include "Similarity.hpp"
 namespace fltm
 {
 
@@ -25,38 +26,9 @@ struct CAST_Item {
 };
 
 
-typedef int Position;
-typedef std::vector< Position > Positions;
-typedef std::map< unsigned, double > SimiCache;
-typedef std::vector < std::vector <int> > Matrix;
-
-
-struct SimilarityCompute {
-  const double MAX_SIMILARITY = 1.0, MIN_SIMILARITY = 0.0;
-  explicit SimilarityCompute( const Positions& pos ,
-                              const Matrix& mat,
-                              unsigned maxDistance,                                      
-                              double simiThres );
-  virtual ~SimilarityCompute() {}
-  virtual double operator()( unsigned, unsigned );
- protected:
-  const Positions& positions;
-  const Matrix& dataMat;
-  unsigned maxPosition;  
-  double m_simiThres;
-
-  std::vector<double> entropyMap;
-
-  unsigned nbrVars;
-  SimiCache simiCache;
-
-};
 
 typedef Partition< CAST_Item > CAST_Partition;
 typedef Cluster < CAST_Item > CAST_Cluster;
-
-typedef std::map< unsigned, std::map<unsigned, double> > SimiMatrix;
-
 
 // template<class T>
 // class std::unique_ptr<T>;
