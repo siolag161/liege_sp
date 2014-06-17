@@ -49,38 +49,50 @@ int main(int argc, char** argv) {
   std::cout << "data loaded. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
-  boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
-  char timeBuf[80];  
-  time_t now = time(0); struct tm tstruct;
-  tstruct = *localtime(&now);  
-  strftime(timeBuf, sizeof(timeBuf), "%Y_%m_%d_%H_%M_%S", &tstruct);
-  outputPath /= timeBuf;
-  boost::filesystem::create_directories(outputPath);
+  // boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
+  // char timeBuf[80];  
+  // time_t now = time(0); struct tm tstruct;
+  // tstruct = *localtime(&now);  
+  // strftime(timeBuf, sizeof(timeBuf), "%Y_%m_%d_%H_%M_%S", &tstruct);
+  // outputPath /= timeBuf;
+  // boost::filesystem::create_directories(outputPath);
 
   printf("Parameters: minPoints: %u, eps: %.2f\n",  progOpt.minPts, progOpt.eps );
 
   std::cout << "Clustering begin...please be patient..." << std::endl;
   MutInfoDistance<Matrix> mutInfoDist( matrix, positions, progOpt.maxPos, progOpt.simiThres );
-
   DBSCAN dbscan;
-  dbscan( matrix, mutInfoDist, progOpt.minPts, progOpt.eps );  
-  
+  dbscan( matrix, mutInfoDist, progOpt.minPts, progOpt.eps );    
   std::cout << "clustering finished. obtained: " << dbscan.nclusters() << " clusters and takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
-  char cast_clustering_fn[256];
-  char optBuf[80]; 
-  sprintf( optBuf, "%u_%.2f_%u",  progOpt.minPts, progOpt.eps, progOpt.maxPos );
+  // char cast_clustering_fn[256];
+  // char optBuf[80]; 
+  // sprintf( optBuf, "%u_%.2f_%u",  progOpt.minPts, progOpt.eps, progOpt.maxPos );
 
-  if ( progOpt.simiThres > 0 ) {
-    sprintf( cast_clustering_fn, "DBSCAN_clustering_binary_%s.txt", optBuf );
+  // if ( progOpt.simiThres > 0 ) {
+  //   sprintf( cast_clustering_fn, "DBSCAN_clustering_binary_%s.txt", optBuf );
+  // } else {
+  //   sprintf( cast_clustering_fn, "DBSCAN_clustering_real_%s.txt", optBuf );
+  // }
+
+  boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
+  std::string outputFileName = outputPath.string();
+
+  if ( !progOpt.verbose ) {     
+    boost::filesystem::create_directories(outputPath);
+    char clustering_fn[256];
+    char optBuf[80];
+    sprintf( optBuf, "%u_%.2f_%u",  progOpt.minPts, progOpt.eps, progOpt.maxPos );
+    sprintf( clustering_fn, "DBSCAN_clustering_%s.txt", optBuf );
+    outputFileName = (outputPath / clustering_fn).string();
   } else {
-    sprintf( cast_clustering_fn, "DBSCAN_clustering_real_%s.txt", optBuf );
+    boost::filesystem::create_directories(outputPath.parent_path());
   }
 
-  std::cout << "writing result into " <<  (outputPath / cast_clustering_fn).string() << std::endl; // todo: logging
-  saveClustering( dbscan, ids, (outputPath / cast_clustering_fn).string() ) ;  
-  
+  std::cout << "writing result into " <<  outputFileName << std::endl; // todo: logging
+  saveClustering( dbscan, ids, outputFileName ) ;
+ 
 }
 
 
@@ -104,6 +116,7 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
         ("minPts,m", po::value<unsigned>(&result.minPts)->required(), "Min Points")
         ("eps,e", po::value<double>(&result.eps)->required(), "Epsilon")
         ("simi,s", po::value<double>(&result.simiThres)->required(), "Similarity Threshold (if < 0 then no threshold)")
+        ("verbose,v", po::value<int>(&result.verbose)->default_value(0), "Verbose")
 
         ;
     po::variables_map vm; 

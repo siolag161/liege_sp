@@ -13,11 +13,15 @@ BASE_ID = 1e6
 def base_id_from_name(fn):
     pos = fn.find('ch') 
     next_pos = fn.find('_', pos)
-    chr = int(fn[pos+2:next_pos])
+    chr = fn[pos+2:next_pos]
+    if (chr != 'X'):
+	chr = int(fn[pos+2:next_pos])
+    else:
+	chr = 23
     return BASE_ID * chr
 
 #################################################################
-#print (join(path, "alibab.csv"))
+
 import csv
 with open(out_path, 'w') as ffp:
     headers = ['id', 'latent', 'parent', 'level', 'cardinality']

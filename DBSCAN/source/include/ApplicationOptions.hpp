@@ -22,6 +22,8 @@ struct ApplicationOptions
   unsigned maxPos;
   double eps;
   double simiThres;
+
+  int verbose;
   
   // std::string chr; 
   ApplicationOptions(): hasHeader(true) {}
