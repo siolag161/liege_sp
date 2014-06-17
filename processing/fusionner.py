@@ -49,7 +49,7 @@ with open(count_path, 'r') as f:
 
 with open("snp_base_id.txt", 'w') as f:
     fw = csv.writer( f, delimiter=',', quoting=csv.QUOTE_NONE )
-    for i in range( NBR_CHRS):
+    for i in range( NBR_CHRS + 1):
 	fw.writerow( [i, snp_counts[i]]  )
 
 neg_count = 0
