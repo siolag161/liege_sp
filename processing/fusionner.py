@@ -39,7 +39,7 @@ with open(out_path, 'w') as ffp:
     headers = ['id', 'latent', 'parent', 'level', 'cardinality']
     fw = csv.writer( ffp, delimiter=',', quoting=csv.QUOTE_NONE )
     for fn in files:
-	base_id = base_id_from_name(fn)	
+	#base_id = base_id_from_name(fn)	
 	with open( join(path,fn), 'r') as f:
 	    print fn
 	    reader = csv.reader( f, delimiter=',')
