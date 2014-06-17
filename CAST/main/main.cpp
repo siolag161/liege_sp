@@ -261,11 +261,12 @@ void saveClustering( const CAST_Partition& clustering, const std::vector<unsigne
     for ( auto citer = iter->second->begin(); citer != iter->second->end(); ++citer ) {
       int id_parent = -1;
       if ( iter->second->size() > 1) {
-        id_parent = currentLatentIndex++;
+        id_parent = currentLatentIndex;
       }
       clustOut << citer->globalIndex << SEPARATOR << 0 << SEPARATOR << id_parent << SEPARATOR
                << 0 << SEPARATOR << 3 << std::endl;  // writes header
     }
+    ++currentLatentIndex;
   }
 
   for (size_t latentId = ids[ids.size()-1] + 1; latentId < currentLatentIndex; ++latentId) {
