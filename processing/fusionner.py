@@ -33,16 +33,17 @@ NBR_CHRS = 25
 snp_counts = [0]*NBR_CHRS
 with open(count_path, 'r') as f:
     reader = csv.reader( f, delimiter=',')
+    tmp = [0]*NBR_CHRS
     for row in reader:
 	snp = int(row[0])
 	count = int(row[1])
-	snp_counts[snp] = count
+	tmo[snp] = count
 
     for i in range( NBR_CHRS - 1):
-	snp_counts[i+1] += snp_counts[i]
+	tmp[i+1] += snp_counts[i]
 
     for i in range( NBR_CHRS - 1):
-	snp_counts[i+1] = snp_counts[i]
+	snp_counts[i+1] = tmp[i]
 
 with open("snp_base_id.txt", 'w') as f:
     fw = csv.writer( f, delimiter=',', quoting=csv.QUOTE_NONE )
