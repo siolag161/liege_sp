@@ -241,32 +241,17 @@ void saveClustering( const CAST_Partition& clustering, const std::vector<unsigne
   clustOut << ID << SEPARATOR << LATENT << SEPARATOR << PARENT << SEPARATOR
            << LEVEL << SEPARATOR << CARDINALITY << "\n";  // writes header
 
-  std::cout << "saving clustering of " << clustering.size() << " clusters into " << clustFN << std::endl;
-  // for ( auto iter = clustering.begin(); iter != clustering.end(); ++iter ) {
-  //   for ( auto citer = iter->second->begin(); citer != iter->second->end(); ++citer ) {
-  //     // clustOut << citer->globalIndex << SEPARATOR << 0 << SEPARATOR <<  currentLatentIndex << SEPARATOR
-  //     //          << 0 << SEPARATOR << 2 << std::endl;  // writes header
-  //     if ( dbscan.get_labels()[var] >= 0 )
-  //       clustOut << ids[var] << SEPARATOR << 0 << SEPARATOR << ( dbscan.get_labels()[var] + max_id ) << SEPARATOR
-  //              << 0 << SEPARATOR << 3 << "\n";
-  //     else
-  //       clustOut << ids[var] << SEPARATOR << 0 << SEPARATOR << ( dbscan.get_labels()[var] ) << SEPARATOR
-  //              << 0 << SEPARATOR << 3 << "\n";
-  //   }
-  //   ;
-  // }
+  std::cout << "saving clustering of " << clustering.size() << " clusters into " << clustFN << std::endl; 
   
   size_t currentLatentIndex = ids[ids.size()-1] + 1;
   for ( auto iter = clustering.begin(); iter != clustering.end(); ++iter ) {
     for ( auto citer = iter->second->begin(); citer != iter->second->end(); ++citer ) {
-      int id_parent = -1;
-      if ( iter->second->size() > 1) {
-        id_parent = currentLatentIndex;
-      }
+      int id_parent =  iter->second->size() > 1 ? currentLatentIndex : -1;
       clustOut << citer->globalIndex << SEPARATOR << 0 << SEPARATOR << id_parent << SEPARATOR
                << 0 << SEPARATOR << 3 << std::endl;  // writes header
     }
-    ++currentLatentIndex;
+    if ( iter->second->size() > 1)
+      ++currentLatentIndex;
   }
 
   for (size_t latentId = ids[ids.size()-1] + 1; latentId < currentLatentIndex; ++latentId) {

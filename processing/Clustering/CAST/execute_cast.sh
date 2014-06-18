@@ -74,6 +74,6 @@ do
     #eval  "./bed2clust.sh -i ${D}/casecontrol_filtered -o ${OUT_PATH} -g ${GENO_TYPE} -p ${PLINK}"
 done
 
-echo "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/CAST_clustering_${PARAMS}.txt snp_counts.txt"
-eval "./fusionner.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/CAST_clustering_${PARAMS}.txt snp_counts.txt"
+echo "./merge.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/CAST_clustering_${PARAMS}.txt ${OUT_PATH}/CAST/${DATE}/CAST_clustering_offset_${PARAMS}.txt cd_snp_counts.txt"
+eval "./merge.py  ${OUT_PATH}/CAST/${DATE}/ ${OUT_PATH}/CAST/${DATE}/CAST_clustering_${PARAMS}.txt ${OUT_PATH}/CAST/${DATE}/CAST_clustering_offset_${PARAMS}.txt cd_snp_counts.txt"
 

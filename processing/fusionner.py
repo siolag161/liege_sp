@@ -5,11 +5,8 @@ import sys
 
 path = sys.argv[1]
 out_path = sys.argv[2]
-#count_path = sys.argv[3]
 
 files = [ f for f in listdir(path) if isfile(join(path,f)) ]
-
-BASE_ID = 1e6
 
 def chr_from_name(fn):
     pos = fn.find('ch') 
@@ -45,13 +42,10 @@ for fn in files:
 		max_id = current_id	
     tmp[chr_int] = max_id + 1
 
-
-
 for i in range( NBR_CHRS + 1):
     tmp[i+1] += tmp[i]
     for i in range( NBR_CHRS ):
 	snp_counts[i+1] = tmp[i]
-	
 	
 
 with open("snp_base_id.txt", 'w') as f:

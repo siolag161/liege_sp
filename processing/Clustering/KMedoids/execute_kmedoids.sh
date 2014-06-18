@@ -100,6 +100,6 @@ do
     eval "${EXE}/${exe} -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/KMedoids/${DATE}/KMedoids_${CHR_DIR}_${PRS}.txt ${KP} -e ${EPS} -s ${SIMI} -x ${MAX_DIST} -v 1"
 done
 
-echo "./fusionner.py ${OUT_PATH}/KMedoids/${DATE}/ ${OUT_PATH}/KMedoids/${DATE}/KMedoids_clustering_${PRS}.txt"
-eval "./fusionner.py ${OUT_PATH}/KMedoids/${DATE}/ ${OUT_PATH}/KMedoids/${DATE}/KMedoids_clustering_${PRS}.txt"
+echo "./merge.py ${OUT_PATH}/KMedoids/${DATE}/ ${OUT_PATH}/KMedoids/${DATE}/KMedoids_clustering_${PRS}.txt ${OUT_PATH}/KMedoids/${DATE}/KMedoids_clustering_offset_${PARAMS}.txt cd_snp_counts.txt"
+eval "./merge.py ${OUT_PATH}/KMedoids/${DATE}/ ${OUT_PATH}/KMedoids/${DATE}/KMedoids_clustering_${PRS}.txt ${OUT_PATH}/KMedoids/${DATE}/KMedoids_clustering_offset_${PARAMS}.txt cd_snp_counts.txt"
 

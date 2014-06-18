@@ -151,7 +151,7 @@ void saveClustering( const DBSCAN& dbscan, const std::vector<unsigned>& ids, std
   unsigned max_id = ids[ ids.size() - 1 ] + 1;
 
   for ( size_t var = 0; var < dbscan.get_labels().size(); ++var ) {
-    if (  dbscan.get_labels()[var] >= 0)
+    if ( dbscan.get_labels()[var] >= 0)
       clustOut << ids[var] << SEPARATOR << 0 << SEPARATOR << ( dbscan.get_labels()[var] + max_id ) << SEPARATOR
                << 0 << SEPARATOR << 3 << "\n";
     else
