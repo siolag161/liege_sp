@@ -27,7 +27,7 @@ typedef std::vector< std::vector<int> > Matrix;
 
 using namespace clustering;
 ApplicationOptions getProgramOptions(int argc, char** argv);
-
+void checkInputFiles( std::string& path, std::string filename );
 void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::string clustFN );
 
 /**
@@ -37,7 +37,8 @@ int main(int argc, char** argv) {
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
 
   ApplicationOptions progOpt = getProgramOptions(argc, argv);  
-  
+  checkInputFiles( progOpt.dataInFile, " data"); checkInputFiles( progOpt.labPosInFile, "label file");
+
   std::vector<Label> labels; std::vector<Position> positions; std::vector<unsigned> ids;
   Matrix matrix;
   std::cout << "loading data from " <<  progOpt.dataInFile << std::endl; // todo: logging
@@ -47,7 +48,6 @@ int main(int argc, char** argv) {
   std::cout << "data loaded. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
-  printf("Parameters: K: %u, eps: %.2f\n",  progOpt.K, progOpt.eps );
 
   std::cout << "Clustering begin...please be patient..." << std::endl;
   MutInfoDistance<Matrix> mutInfoDist( matrix, positions, progOpt.maxPos, progOpt.simiThres );
@@ -56,6 +56,8 @@ int main(int argc, char** argv) {
   unsigned N = progOpt.K;  
   unsigned K = positions.size() / N;
   
+  printf("Parameters: K: %u, eps: %.2f\n", K, progOpt.eps );
+
   PAM_Partition partition = pam( matrix, mutInfoDist, K, 50 );  
   std::cout << "clustering finished. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
@@ -178,4 +180,15 @@ void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::stri
   }
 
   clustOut.close();
+}
+
+/** checks if input exists and exists on giving the error message
+ *
+ */
+void checkInputFiles( std::string& path, std::string filename ) {
+  if ( !boost::filesystem::exists( path ) )
+  {
+    std::cout << "Can't find " << filename << " at " << path << "! Program will now close." << std::endl;
+    exit(-1);
+  }
 }

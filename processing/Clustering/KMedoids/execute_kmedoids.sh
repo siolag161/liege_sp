@@ -92,11 +92,12 @@ if [ $K -lt 0 ]
 	exe="clust_kmedoids"
     fi
 
+eval "mkdir -p ${OUT_PATH}/KMedoids/${DATE}"
 for D in `find ${IN_PATH} -type d`
 do
     CHR_DIR=$(basename $D)    
-    echo "${EXE}/${exe} -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/KMedoids/KMedoids_${CHR_DIR}_${PARAMS}.txt ${KP} -e ${EPS} -s ${SIMI} -x ${MAX_DIST} -v 1 "
-    eval "${EXE}/${exe} -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/KMedoids/KMedoids_${CHR_DIR}_${PARAMS}.txt ${KP} -e ${EPS} -s ${SIMI} -x ${MAX_DIST} -v 1"
+    echo "${EXE}/${exe} -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/KMedoids/${DATE}/KMedoids_${CHR_DIR}_${PRS}.txt ${KP} -e ${EPS} -s ${SIMI} -x ${MAX_DIST} -v 1 "
+    eval "${EXE}/${exe} -i ${D}/casecontrol_filtered_data.csv -l ${D}/casecontrol_filtered_label.csv -o ${OUT_PATH}/KMedoids/${DATE}/KMedoids_${CHR_DIR}_${PRS}.txt ${KP} -e ${EPS} -s ${SIMI} -x ${MAX_DIST} -v 1"
 done
 
 echo "./fusionner.py ${OUT_PATH}/KMedoids/${DATE}/ ${OUT_PATH}/KMedoids/${DATE}/KMedoids_clustering_${PRS}.txt"
