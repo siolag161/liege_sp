@@ -458,7 +458,7 @@ void init_medoids( PAM_Partition& partition,
     MedoidId mid = objBestGain.first;
     std::cout << "updating the medoid " << clust << " medoid..." << std::endl;
     partition.insert_medoid( objBestGain.first );
-    sstd::cout << "assigning to this medoid..." << std::endl;
+    std::cout << "assigning to this medoid..." << std::endl;
     assign_objects_to_clusters( partition, dataMat,dist );
   }
 }
