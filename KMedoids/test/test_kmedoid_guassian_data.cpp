@@ -60,6 +60,7 @@ struct Diss_NoCache {
 };
 
 BOOST_AUTO_TEST_CASE( Test_Gaussian_K_10 ) {
+  std::cout << "\nTesting GAUSIAN...\n";
   size_t nrows = 1000, ncols = 4000;
   size_t K = 10;
   boost::mt19937 rng; // 
