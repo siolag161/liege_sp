@@ -195,8 +195,8 @@ PAM_Partition& PAM::operator()( const DataMatrix& dataMat, Distance& dist, const
   int step = 0;
   while (true) {
     // initial cluster setup
-    //std::cout << "\n\nbegin step: " << (step+1) << std::endl;
-    //std::cout << "assigning to clusters..." << std::endl;
+    std::cout << "\n\nbegin step: " << (step+1) << std::endl;
+    std::cout << "assigning to clusters..." << std::endl;
     assign_objects_to_clusters( partition, dataMat, dist );
     total_dissimilarity = assign_objects_to_clusters( partition, dataMat, dist );// assign_objects_to_clusters(matrix_distance(distance));
     //vars to keep track of minimum
@@ -204,7 +204,7 @@ PAM_Partition& PAM::operator()( const DataMatrix& dataMat, Distance& dist, const
     ClusterId maxCluster = 0;
     MedoidId maxObject = 0;
     
-    // std::cout << "check swapping..." << std::endl;
+    std::cout << "check swapping..." << std::endl;
     for ( ClusterId cid = 0; cid < K; ++ cid ) {
       for ( ObjectId oid = 0; oid << partition.n_objects(); ++ oid ) {
         if ( partition.is_medoid(oid) ) continue;
@@ -453,12 +453,12 @@ void init_medoids( PAM_Partition& partition,
   assign_objects_to_clusters( partition, dataMat, dist );
 
   for ( size_t clust = 1; clust < K; ++clust ) {
-    //std::cout << "finding the " << clust << " medoid..." << std::endl;
+    std::cout << "finding the " << clust << " medoid..." << std::endl;
     Obj_Diss objBestGain = object_best_gain( partition, dataMat, dist );
     MedoidId mid = objBestGain.first;
-    //std::cout << "updating the medoid " << clust << " medoid..." << std::endl;
+    std::cout << "updating the medoid " << clust << " medoid..." << std::endl;
     partition.insert_medoid( objBestGain.first );
-    // std::cout << "assigning to this medoid..." << std::endl;
+    sstd::cout << "assigning to this medoid..." << std::endl;
     assign_objects_to_clusters( partition, dataMat,dist );
   }
 }
