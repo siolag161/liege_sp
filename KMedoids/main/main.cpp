@@ -27,6 +27,7 @@ typedef std::vector< std::vector<int> > Matrix;
 
 using namespace clustering;
 ApplicationOptions getProgramOptions(int argc, char** argv);
+void checkInputFiles( std::string& path, std::string filename );
 
 void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::string clustFN );
 
@@ -37,7 +38,8 @@ int main(int argc, char** argv) {
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
 
   ApplicationOptions progOpt = getProgramOptions(argc, argv);  
-  
+  checkInputFiles( progOpt.dataInFile, " data"); checkInputFiles( progOpt.labPosInFile, "label file");
+
   std::vector<Label> labels; std::vector<Position> positions; std::vector<unsigned> ids;
   Matrix matrix;
   std::cout << "loading data from " <<  progOpt.dataInFile << std::endl; // todo: logging
@@ -180,4 +182,16 @@ void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::stri
   }
 
   clustOut.close();
+}
+
+
+/** checks if input exists and exists on giving the error message
+ *
+ */
+void checkInputFiles( std::string& path, std::string filename ) {
+  if ( !boost::filesystem::exists( path ) )
+  {
+    std::cout << "Can't find " << filename << " at " << path << "! Program will now close." << std::endl;
+    exit(-1);
+  }
 }
