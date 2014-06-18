@@ -453,12 +453,12 @@ void init_medoids( PAM_Partition& partition,
   assign_objects_to_clusters( partition, dataMat, dist );
 
   for ( size_t clust = 1; clust < K; ++clust ) {
-    std::cout << "finding the " << clust << " medoid..." << std::endl;
+    //std::cout << "finding the " << clust << " medoid..." << std::endl;
     Obj_Diss objBestGain = object_best_gain( partition, dataMat, dist );
     MedoidId mid = objBestGain.first;
     //std::cout << "updating the medoid " << clust << " medoid..." << std::endl;
     partition.insert_medoid( objBestGain.first );
-    std::cout << "assigning to this medoid..." << std::endl;
+    // std::cout << "assigning to this medoid..." << std::endl;
     assign_objects_to_clusters( partition, dataMat,dist );
   }
 }

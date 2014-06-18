@@ -49,14 +49,6 @@ int main(int argc, char** argv) {
   std::cout << "data loaded. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
-  // boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
-  // char timeBuf[80];  
-  // time_t now = time(0); struct tm tstruct;
-  // tstruct = *localtime(&now);  
-  // strftime(timeBuf, sizeof(timeBuf), "%Y_%m_%d_%H_%M_%S", &tstruct);
-  // outputPath /= timeBuf;
-  // boost::filesystem::create_directories(outputPath);
-
   printf("Parameters: minPoints: %u, eps: %.2f\n",  progOpt.minPts, progOpt.eps );
 
   std::cout << "Clustering begin...please be patient..." << std::endl;
@@ -65,16 +57,6 @@ int main(int argc, char** argv) {
   dbscan( matrix, mutInfoDist, progOpt.minPts, progOpt.eps );    
   std::cout << "clustering finished. obtained: " << dbscan.nclusters() << " clusters and takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
-
-  // char cast_clustering_fn[256];
-  // char optBuf[80]; 
-  // sprintf( optBuf, "%u_%.2f_%u",  progOpt.minPts, progOpt.eps, progOpt.maxPos );
-
-  // if ( progOpt.simiThres > 0 ) {
-  //   sprintf( cast_clustering_fn, "DBSCAN_clustering_binary_%s.txt", optBuf );
-  // } else {
-  //   sprintf( cast_clustering_fn, "DBSCAN_clustering_real_%s.txt", optBuf );
-  // }
 
   boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
   std::string outputFileName = outputPath.string();

@@ -21,7 +21,9 @@ struct ApplicationOptions
   unsigned maxPos;
   double eps;
   double simiThres;  
- 
+
+  int verbose;
+  
   ApplicationOptions(): hasHeader(true) {}
 };
 

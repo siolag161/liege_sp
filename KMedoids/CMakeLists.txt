@@ -3,3 +3,4 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -fPIC -pedantic -fopenmp 
 
 add_subdirectory(test)
 add_subdirectory(main)
+add_subdirectory(autok)

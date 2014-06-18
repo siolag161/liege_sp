@@ -53,10 +53,10 @@ int main(int argc, char** argv) {
   MutInfoDistance<Matrix> mutInfoDist( matrix, positions, progOpt.maxPos, progOpt.simiThres );
   PAM pam( progOpt.eps );
 
-  //unsigned N = progOpt.K;  
-  // unsigned K = positions.size() / N;
+  unsigned N = progOpt.K;  
+  unsigned K = positions.size() / N;
   
-  PAM_Partition partition = pam( matrix, mutInfoDist, progOpt.K, 50 );  
+  PAM_Partition partition = pam( matrix, mutInfoDist, K, 50 );  
   std::cout << "clustering finished. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
@@ -72,8 +72,6 @@ int main(int argc, char** argv) {
   } else {
     boost::filesystem::create_directories(outputPath.parent_path());
   }
-
-
   saveClustering( pam, ids, outputFileName ) ;
   
   
@@ -96,7 +94,7 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
         ("lpinput,l", po::value<std::string>(&result.labPosInFile)->required(), "Label-Pos Input filename")
         ("outputDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Directory")
 
-        ("k,k", po::value<unsigned>(&result.K)->required(), "K: number of medoids")
+        ("n,n", po::value<unsigned>(&result.K)->required(), "n: avg number of items per cluster")
         ("eps,e", po::value<double>(&result.eps)->required(), "Epsilon")
         
         ("maxPos,x", po::value<unsigned>(&result.maxPos)->required(), "Max Position")
