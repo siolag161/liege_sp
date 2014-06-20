@@ -133,8 +133,8 @@ void init_medoids( PAM_Partition& partition,
  */
 template< class DataMatrix, class Distance >  
 Obj_Diss object_most_similar( const PAM_Partition& partition,
-                                               const DataMatrix& dataMat,
-                                               Distance& dist );
+                              const DataMatrix& dataMat,
+                              Distance& dist );
 
 /** find the non-memoid obj that minimizes the diss to the rest
  *
@@ -278,7 +278,7 @@ double swap_gain( const PAM_Partition& partition,
                   Distance& dist )
 {
   double total_gain = 0.0;
-  #pragma omp parallel for reduction( + : total_gain )
+#pragma omp parallel for reduction( + : total_gain )
   for ( ObjectId i = 0; i < partition.n_objects(); ++i ) {
     total_gain += swap_gain( partition, c, h, i, dataMat, dist );
   }
@@ -292,13 +292,13 @@ double swap_gain( const PAM_Partition& partition,
 typedef double Diss; // short for dissimilarity
 template< class DataMatrix, class Distance >  
 double object_total_diss( const ObjectId i,     
-                            const PAM_Partition& partition,
-                            const DataMatrix& dataMat,
-                            Distance& dist ) {
+                          const PAM_Partition& partition,
+                          const DataMatrix& dataMat,
+                          Distance& dist ) {
   double total = 0.0;
   #pragma omp parallel for reduction( + : total )
   for ( ObjectId j = 0; j < partition.n_objects(); ++j ) {
-     total += dist(i, j);     
+    total += dist(i, j);     
   }
   return total;
 }
@@ -311,6 +311,7 @@ template< class DataMatrix, class Distance >
 Obj_Diss object_most_similar( const PAM_Partition& partition,
                               const DataMatrix& dataMat,
                               Distance& dist ) {
+  //  std::cout << "objectId: " << i << std::endl;
   size_t nbrObjects = dataMat.size();
   ObjectId minDisSimId = 0;
   double minDisSim = std::numeric_limits<double>::max();
@@ -338,7 +339,7 @@ double object_gain( const ObjectId oid,
                     const DataMatrix& dataMat,
                     Distance& dist ) {
   double gain = 0.0;
-  #pragma omp parallel for reduction( + : gain )
+#pragma omp parallel for reduction( + : gain )
   for ( size_t j = 0; j < partition.n_objects(); ++j ) {
     MedoidId medoid_j = partition.medoid_of( partition.cluster_of(j) );
     double dMedoid = dist( j, medoid_j );
@@ -362,11 +363,11 @@ Obj_Diss object_best_gain( const PAM_Partition& partition,
   ObjectId bestGainId = 0;
   double bestGain = 0.0; //-std::numeric_limits<double>::max();
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for ( size_t i = 0; i < nbrObjects; ++i ) {
     if ( partition.is_medoid(i) ) continue;
     double gain = object_gain( i, partition, dataMat, dist );
-    #pragma omp critical
+#pragma omp critical
     {
       if ( gain >= bestGain ) {
         bestGain = gain;
@@ -388,11 +389,11 @@ std::pair< Obj_Diss, Obj_Diss> find_object_clusters( const ObjectId oid,
 {
   Diss minD = std::numeric_limits<double>::max(), min2D =  std::numeric_limits<double>::max(); // minD2 = secondMin
   ClusterId minId = 0, min2Id = 0;
-  #pragma omp parallel for
+#pragma omp parallel for
   for ( ClusterId cid = 0; cid < partition.n_clusters(); ++cid ) {
     MedoidId mid = partition.medoid_of(cid);
     double d = dist( mid, oid );
-    #pragma omp critical
+#pragma omp critical
     {
       if ( d < minD )  {
         min2D = minD; min2Id = minId;
@@ -420,11 +421,11 @@ double assign_objects_to_clusters( PAM_Partition& partition,
        
   double total_diss = 0.0;
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for ( ObjectId oid = 0; oid < partition.n_objects(); ++ oid ) {
     std::pair< Obj_Diss, Obj_Diss> clusters = find_object_clusters( oid, partition, dataMat, dist );
     
-    #pragma omp critical
+#pragma omp critical
     {
       total_diss += clusters.first.second; // first -> minClust, second -> minDist
       partition.set_cluster( oid, clusters.first.first ); // set best
@@ -446,9 +447,11 @@ void init_medoids( PAM_Partition& partition,
   partition.clear( dataMat.size() );
   assert( partition.medoids.size() == 1);
   // the first medoid is the object that minimizes the diss w.r.t. the rest
+  std::cout << "find object most similar..." << std::endl;
   Obj_Diss first_medoid = object_most_similar( partition, dataMat, dist );
 
   partition.medoids[0] = first_medoid.first;
+  std::cout << "assign object most similar..." << std::endl;
   assign_objects_to_clusters( partition, dataMat, dist );
 
   for ( size_t clust = 1; clust < K; ++clust ) {

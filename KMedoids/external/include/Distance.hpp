@@ -41,7 +41,67 @@ struct MutInfoDistance {
   double m_median;
 };
 
+  
+template<class DM>
+double mutualInformationDistance( std::vector<double>& entropyMap,
+                                  std::map<size_t,double>& distCache,
+                                  const DM& dataMat,
+                                  const size_t varA,
+                                  const size_t varB );
+template<class DM>
+MutInfoDistance<DM>::MutInfoDistance( DM& dm, std::vector<int>& pos, unsigned maxPos, double thres ):
+    dataMat(dm), positions(pos),
+    maxPosition(maxPos), entropyMap(std::vector<double> (pos.size(), -1.0)),
+    m_thres(thres)
+{
+  size_t nbrVars = positions.size();
+  if ( thres > 0 ) { // binary-->median, have to pre-compute all    
+    boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::median(boost::accumulators::with_p_square_quantile) > > acc;
+    #pragma omp parallel for
+    for ( size_t varA = 0; varA < nbrVars; ++varA) {
+      for ( size_t varB = varA+1; varB < nbrVars; ++varB ) {
+        if ( abs( positions[varA] - positions[varB] ) > maxPos ) continue; 
+        double result = mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
+        #pragma omp critical
+        acc(result);
+      }
+    }
+    #pragma omp critical
+    m_thres = boost::accumulators::median(acc);
+  }
+}
 
+template<class DM>
+double MutInfoDistance<DM>::operator()( size_t varA, size_t varB ) {
+  if ( varA == varB ) return MIN_DISTANCE;
+  if ( varA > varB ) return (*this)( varB, varA );
+  if ( abs( positions[varA] - positions[varB] ) >= maxPosition ) return MAX_DISTANCE;
+
+  size_t nbrVars = dataMat.size();
+  size_t key = 2*nbrVars*varA + varB;   
+  double result = MAX_DISTANCE, rs = MAX_DISTANCE;
+  std::map<size_t, double>::iterator iter;
+      
+  #pragma omp critical
+  iter = distCache.find(key);
+
+  if ( iter == distCache.end() ) {
+    rs =  mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
+  }
+
+  #pragma omp critical
+  distCache[key] = rs;
+    
+  if ( m_thres > 0 ) { // binary-->median, have to pre-compute all
+    result = ( rs > m_thres ) ? MAX_DISTANCE : MIN_DISTANCE;  
+  } else { // continue
+    result = rs;   
+  }
+
+  return result;
+}
+
+  
 template<class DM>
 double mutualInformationDistance( std::vector<double>& entropyMap,
                                   std::map<size_t,double>& distCache,
@@ -83,56 +143,6 @@ double mutualInformationDistance( std::vector<double>& entropyMap,
   return result;
 }
 
-template<class DM>
-MutInfoDistance<DM>::MutInfoDistance( DM& dm, std::vector<int>& pos, unsigned maxPos, double thres ):
-    dataMat(dm), positions(pos),
-    maxPosition(maxPos), entropyMap(std::vector<double> (pos.size(), -1.0)),
-    m_thres(thres)
-{
-  size_t nbrVars = positions.size();
-  if ( thres > 0 ) { // binary-->median, have to pre-compute all    
-    boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::median(boost::accumulators::with_p_square_quantile) > > acc;
-    #pragma omp parallel for
-    for ( size_t varA = 0; varA < nbrVars; ++varA) {
-      for ( size_t varB = varA+1; varB < nbrVars; ++varB ) {
-        if ( abs( positions[varA] - positions[varB] ) > maxPos ) continue; 
-        double result = mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
-        #pragma omp critical
-        acc(result);
-      }
-    }
-    #pragma omp critical
-    m_thres = boost::accumulators::median(acc);
-  }
-}
-
-template<class DM>
-double MutInfoDistance<DM>::operator()( size_t varA, size_t varB ) {
-  if ( varA == varB ) return MIN_DISTANCE;
-  if ( varA > varB ) return (*this)( varB, varA );
-  if ( abs( positions[varA] - positions[varB] ) >= maxPosition ) return MAX_DISTANCE;
-
-  size_t nbrVars = dataMat.size();
-  size_t key = 2*nbrVars*varA + varB;   
-  double result = MAX_DISTANCE;
-
-  #pragma omp critical
-  {
-    std::map<size_t, double>::iterator iter = distCache.find(key);  
-    if ( iter == distCache.end() ) {
-      result =  mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
-      distCache[key] = result;
-    }
-  }
-    
-  if ( m_thres > 0 ) { // binary-->median, have to pre-compute all
-    result = ( distCache.at(key) > m_thres ) ? MAX_DISTANCE : MIN_DISTANCE;  
-  } else { // continue
-   result =  distCache.at(key);   
-  }
-
-  return result;
-}
 
 
 } // namespace clusteringends here. clustering
