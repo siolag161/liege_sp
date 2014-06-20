@@ -17,6 +17,7 @@
 #include <boost/accumulators/statistics/median.hpp>
 
 #include "kmedoids.hpp"
+#include <omp.h>
 
 namespace utl = utility;
 namespace po = boost::program_options;   
@@ -34,6 +35,8 @@ void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::stri
  * @todo: merge this and CAST
  */
 int main(int argc, char** argv) {
+  int nProcessors=omp_get_max_threads();
+  omp_set_num_threads( std::max(nProcessors - 3, 1) );
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
 
   ApplicationOptions progOpt = getProgramOptions(argc, argv);  

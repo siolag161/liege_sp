@@ -114,7 +114,7 @@ double Entropy<EstimationMethodT>::compute(XIterator xBegin, XIterator xEnd, uti
 template<int EstimationMethodT>
 template<typename XIterator, typename YIterator>
 double JointEntropy<EstimationMethodT>::compute( XIterator xBegin, XIterator xEnd,
-                                                YIterator yBegin, utility::Int2Type<EMP>)
+                                                 YIterator yBegin, utility::Int2Type<EMP>)
 {
 
   typedef std::pair<unsigned, unsigned> IntPair;

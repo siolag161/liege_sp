@@ -37,8 +37,8 @@ void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::stri
  */
 int main(int argc, char** argv) {
 
-  int nProcessors=omp_get_max_threads();
-  omp_set_num_threads( std::max(nProcessors -3, 1) );
+  // int nProcessors=omp_get_max_threads();
+  // omp_set_num_threads( std::max(nProcessors -3, 1) );
   //std::cout<<omp_get_num_threads()<<std::endl;
   
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
