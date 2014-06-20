@@ -203,8 +203,9 @@ PAM_Partition& PAM::operator()( const DataMatrix& dataMat, Distance& dist, const
     double maxGain = 0.0;
     ClusterId maxCluster = 0;
     MedoidId maxObject = 0;
-    
+
     std::cout << "check swapping..." << std::endl;
+   
     for ( ClusterId cid = 0; cid < K; ++ cid ) {
       for ( ObjectId oid = 0; oid << partition.n_objects(); ++ oid ) {
         if ( partition.is_medoid(oid) ) continue;
@@ -223,6 +224,7 @@ PAM_Partition& PAM::operator()( const DataMatrix& dataMat, Distance& dist, const
     partition.set_medoid( maxCluster, maxObject );
   }
 
+  //if ( step % 5 == 0 )
   printf("step: %d, diss = %.3f \n", step, total_dissimilarity);
 
   return partition;
@@ -444,21 +446,24 @@ void init_medoids( PAM_Partition& partition,
   partition.clear( dataMat.size() );
   assert( partition.medoids.size() == 1);
   // the first medoid is the object that minimizes the diss w.r.t. the rest
-  // std::cout << "computing first medoid..." << std::endl;
   Obj_Diss first_medoid = object_most_similar( partition, dataMat, dist );
-  //std::cout << "done computing..." << std::endl;
 
   partition.medoids[0] = first_medoid.first;
-  //std::cout << "assigning to this first medoid..." << std::endl;
   assign_objects_to_clusters( partition, dataMat, dist );
 
   for ( size_t clust = 1; clust < K; ++clust ) {
-    std::cout << "finding the " << clust << " medoid..." << std::endl;
+
+    if ( clust % 10 == 0 ) 
+      std::cout << "finding the " << clust << " medoid..." << std::endl;
+      
     Obj_Diss objBestGain = object_best_gain( partition, dataMat, dist );
     MedoidId mid = objBestGain.first;
-    std::cout << "updating the medoid " << clust << " medoid..." << std::endl;
+
+    if ( clust % 10 == 0 ) 
+      std::cout << "updating the medoid " << clust << " medoid..." << std::endl;
     partition.insert_medoid( objBestGain.first );
-    std::cout << "assigning to this medoid..." << std::endl;
+    if ( clust % 10 == 0 ) 
+      std::cout << "assigning to this: " << clust << " medoids..." << std::endl;
     assign_objects_to_clusters( partition, dataMat,dist );
   }
 }
