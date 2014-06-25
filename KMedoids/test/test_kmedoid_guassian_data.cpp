@@ -63,21 +63,18 @@ BOOST_AUTO_TEST_CASE( Test_Gaussian_K_10 ) {
   // std::cout << "\nTesting GAUSIAN...\n";
   // size_t nrows = 1000, ncols = 4000;
   // size_t K = 10;
-  // boost::mt19937 rng; // 
- 
-  
-  // // std::vector< std::vector<double> > data( nrows, std::vector<double>(ncols, 0.0) );
-  // std::vector< std::vector<double> > data( nrows, std::vector<double>(ncols, 0.0) );  
+  // boost::mt19937 rng; //  
+  // std::vector< std::vector<double> > data( nrows, std::vector<double>(ncols, 0.0) );
 
   // for ( size_t i = 0; i < nrows; ++i ) {
   //   double mean = (i % K)*1.0;
-  //   double sv = 0.1;
-  //   boost::normal_distribution<> nd( mean, sv );
-  //   boost::variate_generator<boost::mt19937&, 
-  //                            boost::normal_distribution<> > var_nor(rng, nd);    
-  //   for ( size_t j = 0; j < ncols; ++j )
-  //     data[i][j] = var_nor();
-  // }
+  //    double sv = 0.1;
+  //    boost::normal_distribution<> nd( mean, sv );
+  //    boost::variate_generator<boost::mt19937&, 
+  //                             boost::normal_distribution<> > var_nor(rng, nd);    
+  //    for ( size_t j = 0; j < ncols; ++j )
+  //      data[i][j] = var_nor();
+  //  }
   
   // Diss dist(data);
 

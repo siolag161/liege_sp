@@ -27,7 +27,10 @@ void loadDataTable( std::vector< std::vector<T> >& dt,
   std::cout << "loading data" << std::endl << std::endl;
 
   std::ifstream matrixFile(infile.c_str());
-  if (!matrixFile) return;
+  if (!matrixFile) {
+    std::cout << "not exists..." << std::endl;
+    return;
+  }
    dt.reserve(100000);
 
   utility::CSVIterator<T> matrixLine(matrixFile);

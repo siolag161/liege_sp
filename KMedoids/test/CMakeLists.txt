@@ -10,12 +10,13 @@ set( ROOT_PROJECT ../ )
 include_directories( 
   "${Boost_INCLUDE_DIR}" 
   "${ROOT_PROJECT}/source/include" 
+  "${ROOT_PROJECT}/external/include"
 )
 
 link_directories(${Boost_LIBRARY_DIR})
 
 file(GLOB SOURCES ${ROOT_PROJECT}/source/src/*.cpp)
 
-add_executable( test_kmemoids ${SOURCES} test_runner.cpp test_kmedoid.cpp test_kmedoid_guassian_data.cpp )
+add_executable( test_kmemoids ${SOURCES} test_runner.cpp test_kmedoid.cpp test_kmedoid_guassian_data.cpp test_mutinfo.cpp )
 target_link_libraries( test_kmemoids boost_program_options boost_filesystem boost_system boost_regex boost_unit_test_framework  )
 

@@ -116,7 +116,7 @@ namespace stats
 
 struct TestFisher { 
   template<class ContigencyTabT>
-  double gtest( const ContigencyTabT& contigencyTab ) {
+  double gtest( const ContigencyTabT& contigencyTab ) const {
     int nrow = contigencyTab.size();
     if ( nrow == 0 ) 
       return -9;

@@ -18,7 +18,7 @@ struct TestChiSquared {
    *  @param exp Expected frequencies (or counts) in each category
    */
   template<class VecT>
-  double statistic( const VecT& obs, const VecT& exp, bool useYates = false  ) {
+  double statistic( const VecT& obs, const VecT& exp, bool useYates = false  ) const {
     double statistic = 0.0;
     for (unsigned sz = 0; sz < obs.size(); ++sz) {
       if ( obs[sz]*exp[sz] != 0.0 ) {
@@ -37,7 +37,7 @@ struct TestChiSquared {
    *  @param exp Expected frequencies (or counts) in each category
    */
   template<class VecT>
-  double chisqTest( const VecT& obs, const VecT& exp, bool useYates = false ) {
+  double chisqTest( const VecT& obs, const VecT& exp, bool useYates = false ) const {
     double stat = statistic(obs, exp, useYates);
     const unsigned degreeFreedom = obs.size();
     return chisqTest(stat, degreeFreedom);
@@ -46,7 +46,7 @@ struct TestChiSquared {
   /**
    *
    */
-  double chisqTest( const double statistic, const unsigned int degreeFreedom ) {
+  double chisqTest( const double statistic, const unsigned int degreeFreedom ) const {
     boost::math::chi_squared dist(degreeFreedom);
     double p_value = 1.0;
     try {
@@ -64,7 +64,7 @@ struct TestChiSquared {
    * requires that data.size() == which.size()
    */
   template<class ContigencyTabT>
-  double chisqTest( const ContigencyTabT& contigencyTab, bool useYates = false ) {
+  double chisqTest( const ContigencyTabT& contigencyTab, bool useYates = false ) const {
     assert(contigencyTab.size() > 0);
     const unsigned nbrRows = contigencyTab.size();
     const unsigned nbrColumns = contigencyTab[0].size();

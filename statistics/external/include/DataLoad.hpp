@@ -47,7 +47,7 @@ void loadPhenotype( std::vector< int >& phenotype,
                     std::vector< std::string > & labels,
                     std::vector<unsigned>& ids,
                     std::vector< int >& positions,
-                    const std::string& infile )  {
+                    const std::string& infile ) {
   std::ifstream labPosFile(infile.c_str());
   if (!labPosFile) return;
   std::vector<std::string>().swap(labels); //lab2Pos.clear();

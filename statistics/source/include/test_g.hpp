@@ -44,7 +44,7 @@ struct TestG2 {
    *  @param exp Expected frequencies (or counts) in each category
    */
   template<class VecT>
-  double statistic( const VecT& obs, const VecT& exp ) {
+  double statistic( const VecT& obs, const VecT& exp )  {
     double statistic = 0.0;
     for (unsigned sz = 0; sz < obs.size(); ++sz) {
       if ( obs[sz]*exp[sz] != 0.0 ) {
@@ -67,7 +67,7 @@ struct TestG2 {
   /**
    *
    */
-  double gtest( const double statistic, const unsigned int degreeFreedom ) {
+  double gtest( const double statistic, const unsigned int degreeFreedom )  {
     boost::math::chi_squared dist(degreeFreedom);
     double p_value = 1.0;
     try {
