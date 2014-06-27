@@ -1,0 +1,1 @@
+Logistic Regression, relying on libLBFGS & eigen libraries
