@@ -1,10 +1,8 @@
 #include "TimerUtils.hpp"
 #include "ApplicationOptions.hpp"
 #include "OptionPrinter.hpp" //for printing
-#include "DataTable.hpp"
 #include "CSVParser.hpp"
 #include "DataLoad.hpp"
-#include "Distance.hpp"
 
 #include <iostream> 
 #include <fstream>
@@ -12,59 +10,58 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp> // to obtain the program's name
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/median.hpp>
-
-#include "kmedoids.hpp"
-#include <omp.h>
+#include "cluster.hpp"
+#include "repartition.hpp"
+#include "hc.hpp"
+#include "average_strategy.hpp"
 
 namespace utl = utility;
 namespace po = boost::program_options;   
+using namespace clustering;
 
 typedef int Position;
 typedef std::string Label;
 typedef std::vector< std::vector<int> > Matrix;
+// typedef std::vector<int> Phenotype;
 
-using namespace clustering;
 ApplicationOptions getProgramOptions(int argc, char** argv);
 void checkInputFiles( std::string& path, std::string filename );
+void saveClustering( const Repartition& rp, const std::vector<unsigned>& ids, std::string clustFN );
 
-void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::string clustFN );
 
 /**
  * @todo: merge this and CAST
  */
 int main(int argc, char** argv) {
 
-  // int nProcessors=omp_get_max_threads();
-  // omp_set_num_threads( std::max(nProcessors -3, 1) );
-  //std::cout<<omp_get_num_threads()<<std::endl;
   
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
-
-  ApplicationOptions progOpt = getProgramOptions(argc, argv);  
+  ApplicationOptions progOpt = getProgramOptions(argc, argv);
+  // checkInputFiles( progOpt.genoInFile, " data"); checkInputFiles( progOpt.phenoInFile, "label file");
   checkInputFiles( progOpt.dataInFile, " data"); checkInputFiles( progOpt.labPosInFile, "label file");
 
   std::vector<Label> labels; std::vector<Position> positions; std::vector<unsigned> ids;
-  Matrix matrix;
-  std::cout << "loading data from " <<  progOpt.dataInFile << std::endl; // todo: logging
-  loadDataTable ( matrix, progOpt.dataInFile );
+  Matrix mat;
+  
+  std::cout << "Loading genotype data from " <<  progOpt.dataInFile << std::endl; // todo: logging
+  loadDataTable ( mat, progOpt.dataInFile );
   loadLabelPosition( labels, ids, positions, progOpt.labPosInFile );
 
   std::cout << "data loaded. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
-  printf("Parameters: K: %u, eps: %.2f\n",  progOpt.K, progOpt.eps );
+  std::cout << "Testing begin...please be patient..." << std::endl;
+  // performTesting( pvalues, genoMat, pheno, progOpt.codage, progOpt.permutation );
+
+  HierarchicalClustering hc;
+
+  typedef MutInfoDistance< Matrix > Distance;
+  Distance diss( mat, positions, progOpt.maxPos, progOpt.simiThres );
+  AverageStrategy< Distance > strategy(diss);
 
   std::cout << "Clustering begin...please be patient..." << std::endl;
-  MutInfoDistance<Matrix> mutInfoDist( matrix, positions, progOpt.maxPos, progOpt.simiThres );
-  PAM pam( progOpt.eps );
-
-  
-  PAM_Partition partition = pam( matrix, mutInfoDist, progOpt.K, 50 );  
-  std::cout << "clustering finished. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
-  timer.restart();
+  auto repartition = hc( mat, strategy, progOpt.K );
+  std::cout << "clustering finished takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
 
   boost::filesystem::path outputPath = boost::filesystem::absolute(progOpt.outputDir);
   std::string outputFileName = outputPath.string();
@@ -72,17 +69,15 @@ int main(int argc, char** argv) {
     boost::filesystem::create_directories(outputPath);
     char clustering_fn[256];
     char optBuf[80];
-    sprintf( optBuf, "%u_%.2f_%u",  progOpt.K, progOpt.eps, progOpt.maxPos );
-    sprintf( clustering_fn, "kmedoids_clustering_%s.txt", optBuf );
+    sprintf( optBuf, "%u_%u",  progOpt.K, progOpt.maxPos );
+    sprintf( clustering_fn, "hc_average_clustering_%s.txt", optBuf );
     outputFileName = (outputPath / clustering_fn).string();
   } else {
     boost::filesystem::create_directories(outputPath.parent_path());
   }
 
+  saveClustering( repartition, ids, outputFileName );
 
-  saveClustering( pam, ids, outputFileName ) ;
-  
-  
 }
 
 
@@ -97,13 +92,14 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
     /** Define and parse the program options 
      */
     optDesc.add_options()
+         
         ("help,h", "Print help messages")
         ("dinput,i", po::value<std::string>(&result.dataInFile)->required(), "Data Input filename")
         ("lpinput,l", po::value<std::string>(&result.labPosInFile)->required(), "Label-Pos Input filename")
         ("outputDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Directory")
 
         ("k,k", po::value<unsigned>(&result.K)->required(), "K: number of medoids")
-        ("eps,e", po::value<double>(&result.eps)->required(), "Epsilon")
+        // ("eps,e", po::value<double>(&result.eps)->required(), "Epsilon")
         
         ("maxPos,x", po::value<unsigned>(&result.maxPos)->required(), "Max Position")
         ("simi,s", po::value<double>(&result.simiThres)->required(), "Similarity Threshold (if < 0 then no threshold)")
@@ -125,7 +121,6 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
       std::cout << e.what() << std::endl << std::endl;
       rad::OptionPrinter::printStandardAppDesc( appName,std::cout,
                                                 optDesc, NULL);
-
       exit(-1);
     }
 
@@ -134,7 +129,6 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
   {
     std::cout << "Unhandled Exception reached the top of main: "
               << e.what() << ", application will now exit" << std::endl;
-
     rad::OptionPrinter::printStandardAppDesc(appName, std::cout, optDesc, NULL);
     exit(-1);
   }
@@ -151,42 +145,6 @@ static const std::string CARDINALITY = "cardinality";
 static const std::string PARENT_ID = "parent_id";
 static const char SEPARATOR = ',';
 
-void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::string clustFN ) {  
-  std::ofstream clustOut(clustFN);
-  clustOut << ID << SEPARATOR << LATENT << SEPARATOR << PARENT << SEPARATOR
-           << LEVEL << SEPARATOR << CARDINALITY << "\n";  // writes header
-
-  std::cout << "saving clustering of " << pam.get_partition().n_clusters() << " clusters into " << clustFN << std::endl;
-  unsigned max_id = ids[ ids.size() - 1 ] + 1;
-
-  unsigned K = pam.get_partition().n_clusters();
-  std::vector<unsigned> clusterCardinality(K,0) ; // 
-  for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
-    ClusterId cid = pam.get_partition().cluster_of( var );
-    ++clusterCardinality[cid];
-  }
-
-  //for ( size_t )
-  for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
-    ClusterId cid = pam.get_partition().cluster_of( var );
-    int level = 0, id = ids[var], card = 3, latent = 0;
-    int parent = -1;
-    if ( clusterCardinality[cid] > 1 ) {
-      parent = max_id + cid;
-    }
-    clustOut << id << SEPARATOR << latent  << SEPARATOR << parent << SEPARATOR
-             << level << SEPARATOR << card << "\n";
-  }
-  
-  for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
-    int level = 0, id = ids[var], card = 3, latent = 0;
-    int parent = -1;
-    clustOut << id << SEPARATOR << latent  << SEPARATOR << parent << SEPARATOR
-             << level << SEPARATOR << card << "\n";
-  }
-
-  clustOut.close();
-}
 
 
 /** checks if input exists and exists on giving the error message
@@ -198,4 +156,42 @@ void checkInputFiles( std::string& path, std::string filename ) {
     std::cout << "Can't find " << filename << " at " << path << "! Program will now close." << std::endl;
     exit(-1);
   }
+}
+
+
+void saveClustering( const Repartition& rp, const std::vector<unsigned>& ids, std::string clustFN ) {  
+  std::ofstream clustOut(clustFN);
+  clustOut << ID << SEPARATOR << LATENT << SEPARATOR << PARENT << SEPARATOR
+           << LEVEL << SEPARATOR << CARDINALITY << "\n";  // writes header
+
+  std::cout << "saving clustering of " << rp.nclusters() << " clusters into " << clustFN << std::endl;
+  unsigned max_id = ids[ ids.size() - 1 ] + 1;
+
+  unsigned K = rp.nclusters();
+  // std::vector<unsigned> clusterCardinality(K,0) ; // 
+  // for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
+  //   ClusterId cid = pam.get_partition().cluster_of( var );
+  //   ++clusterCardinality[cid];
+  // }
+
+  // //for ( size_t )
+  // for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
+  //   ClusterId cid = pam.get_partition().cluster_of( var );
+  //   int level = 0, id = ids[var], card = 3, latent = 0;
+  //   int parent = -1;
+  //   if ( clusterCardinality[cid] > 1 ) {
+  //     parent = max_id + cid;
+  //   }
+  //   clustOut << id << SEPARATOR << latent  << SEPARATOR << parent << SEPARATOR
+  //            << level << SEPARATOR << card << "\n";
+  // }
+  
+  // for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
+  //   int level = 0, id = ids[var], card = 3, latent = 0;
+  //   int parent = -1;
+  //   clustOut << id << SEPARATOR << latent  << SEPARATOR << parent << SEPARATOR
+  //            << level << SEPARATOR << card << "\n";
+  // }
+
+  clustOut.close();
 }
