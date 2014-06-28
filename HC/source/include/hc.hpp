@@ -67,10 +67,11 @@ const Repartition& HierarchicalClustering::operator()( const DataMat& dm,
   Height currSize = 0;
   initClusters( dm.size() );
   while ( repartition.nclusters() >= 2 && repartition.nclusters() > s ) {
+    if ( repartition.nclusters() % 2 == 0 )  
+      std::cout << repartition.nclusters() << std::endl;
     auto cip = closestClusterPair( repartition.clusters, dm, strategy );
     repartition.add( cip.first, cip.second );
-    if ( repartition.nclusters() % 10 == 0 )  
-      std::cout << repartition.nclusters() << std::endl;
+   
   }
 
   return repartition;
