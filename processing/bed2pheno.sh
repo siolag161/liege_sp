@@ -71,9 +71,10 @@ echo
 bed_path="${bed_path_without_extension}"
 out_path="${out_path}/${bed_filename_without_extension}"
 
+echo "${bed_path}.bim"
 
 rm -f 'R_temp.R' # Rcript requires a temporary .R script file
-R_command="fam <- read.table(\"${bed_path}.fam\", as.is = T, header = F); phenotype = fam[, 6]; write.table(phenotype, file=\"${out_path}_pheno.csv\", row.names=F, col.names=F, sep=\",\");";
+R_command="bim <- read.table(\"${bed_path}.bim\", as.is = T, header = F); fam <- read.table(\"${bed_path}.fam\", as.is = T, header = F); pheno_label = cbind( bim[, c(2,1,3,4)], fam[, 6] ); write.table(pheno_label, file=\"${out_path}_pheno.csv\", row.names=F, col.names=F, sep=\",\");";
 echo $R_command > R_temp.R;
 Rscript R_temp.R;
 rm -f 'R_temp.R' # Rcript requires a temporary .R script file
