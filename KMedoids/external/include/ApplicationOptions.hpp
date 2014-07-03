@@ -20,7 +20,7 @@ struct ApplicationOptions
   unsigned K;
   unsigned maxPos;
   double eps;
-  double simiThres;  
+  double simiThres;
 
   int verbose;
   

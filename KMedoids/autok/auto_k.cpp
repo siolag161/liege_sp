@@ -36,7 +36,7 @@ void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::stri
  */
 int main(int argc, char** argv) {
   int nProcessors=omp_get_max_threads();
-  omp_set_num_threads( std::max(nProcessors - 7, 1) );
+  omp_set_num_threads( std::max(nProcessors - 1,1) );
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
 
   ApplicationOptions progOpt = getProgramOptions(argc, argv);  
@@ -54,6 +54,17 @@ int main(int argc, char** argv) {
 
   std::cout << "Clustering begin...please be patient..." << std::endl;
   MutInfoDistance<Matrix> mutInfoDist( matrix, positions, progOpt.maxPos, progOpt.simiThres );
+
+  // std::ofstream os("dist.csv");
+  // for ( size_t i = 0; i <  matrix.size(); ++i ) {
+  //   for ( size_t j = 0; j <  matrix.size() - 1; ++j ) {
+  //     if ( mutInfoDist(i,j) < 1)
+  //       printf("dist(%d,%d):%f == dist(%d,%d):%f\n", i,j,mutInfoDist(i,j),j,i,mutInfoDist(j,i));
+  //     os << mutInfoDist(i,j) << ",";
+  //   }
+  //   os << mutInfoDist(i, matrix.size() -1) << "\n";
+  // }  
+
   PAM pam( progOpt.eps );
 
   unsigned N = progOpt.K;  
@@ -61,7 +72,8 @@ int main(int argc, char** argv) {
   
   printf("Parameters: K: %u, eps: %.2f\n", K, progOpt.eps );
 
-  PAM_Partition partition = pam( matrix, mutInfoDist, K, 50 );  
+  PAM_Partition partition = pam( matrix, mutInfoDist, K, 20);
+  // std::cout << partition << std::endl;
   std::cout << "clustering finished. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
@@ -78,8 +90,12 @@ int main(int argc, char** argv) {
     boost::filesystem::create_directories(outputPath.parent_path());
   }
   saveClustering( pam, ids, outputFileName ) ;
+  std::cout << "to clustering..." << std::endl;
+  auto clt = partition.to_clustering();
   
-  
+  for ( size_t i = 0; i < clt.size(); ++i ) {
+    // printf("clt[%d]: %d\n", i, clt.at(i).size());
+  }
 }
 
 
@@ -167,20 +183,19 @@ void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::stri
   for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
     ClusterId cid = pam.get_partition().cluster_of( var );
     int level = 0, id = ids[var], card = 3, latent = 0;
-    int parent = -1;
-    if ( clusterCardinality[cid] > 1 ) {
-      parent = max_id + cid;
-    }
-    clustOut << id << SEPARATOR << latent  << SEPARATOR << parent << SEPARATOR
-             << level << SEPARATOR << card << "\n";
+    int parent = cid;
+    // if ( clusterCardinality[cid] > 1 ) {
+    //   parent = cid + max_id;
+    // }
+    clustOut << id << SEPARATOR << parent << "\n";
   }
   
-  for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
-    int level = 0, id = ids[var], card = 3, latent = 0;
-    int parent = -1;
-    clustOut << id << SEPARATOR << latent  << SEPARATOR << parent << SEPARATOR
-             << level << SEPARATOR << card << "\n";
-  }
+  // for ( size_t clt = 0; clt < pam.get_partition().n_clusterss(); ++clt ) {
+  //   int level = 0, id = ids[var], card = 3, latent = 0;
+  //   int parent = -1;
+  //   clustOut << id << SEPARATOR << latent  << SEPARATOR << parent << SEPARATOR
+  //            << level << SEPARATOR << card << "\n";
+  //  }
 
   clustOut.close();
 }

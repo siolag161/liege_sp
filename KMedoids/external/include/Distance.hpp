@@ -12,8 +12,6 @@
 #include "MutInfo.hpp"
 #include <map>
 
-
-
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
 #include <boost/accumulators/statistics/median.hpp>
@@ -87,10 +85,11 @@ double MutInfoDistance<DM>::operator()( size_t varA, size_t varB ) {
 
   if ( iter == distCache.end() ) {
     rs =  mutualInformationDistance( entropyMap, distCache, dataMat, varA, varB );
-  }
-
-  #pragma omp critical
-  distCache[key] = rs;
+    #pragma omp critical
+    distCache[key] = rs;
+  } else {
+    rs = iter->second;
+  } 
     
   if ( m_thres > 0 ) { // binary-->median, have to pre-compute all
     result = ( rs > m_thres ) ? MAX_DISTANCE : MIN_DISTANCE;  

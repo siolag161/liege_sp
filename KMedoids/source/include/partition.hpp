@@ -47,9 +47,9 @@
 namespace clustering
 {
 
-typedef size_t MedoidId;
-typedef size_t ObjectId;
-typedef size_t ClusterId;
+typedef int MedoidId;
+typedef int ObjectId;
+typedef int ClusterId;
 
 typedef std::vector< std::set<ObjectId> > Clustering;
 struct Partition {
@@ -78,16 +78,15 @@ struct Partition {
 
   size_t n_objects() const { return clusters.size(); }
 
-  size_t n_objects( const size_t clust_id );
+  size_t n_objects( const int clust_id );
 
   Clustering to_clustering() const;
 
   void clear( const size_t );
 };
 
-double mirkin_distance( const Clustering& c1, const Clustering& c2 );
-double mirkin_distance( const Partition& p1, const Partition& p2 );
-
+double mirkin_distance( const Clustering& c1, const Clustering& c2 ); 
+double mirkin_distance( const Partition& p1, const Partition& p2 ) ;
 
 } // namespace clusteringends here. clustering
 

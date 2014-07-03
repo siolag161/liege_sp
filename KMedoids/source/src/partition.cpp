@@ -46,14 +46,14 @@ Partition::Partition( const size_t nbrObjects): clusters( nbrObjects, 0) {
 /**
  *
  */
-size_t Partition::n_objects( const size_t clust_id ) {
+size_t Partition::n_objects( const int clust_id ) {
   return std::count( clusters.begin(), clusters.end(), clust_id );
 }
 
 Clustering Partition::to_clustering() const {
   Clustering clt;
-  clt.reserve( medoids.size() );
-
+  //clt.reserve( medoids.size() );
+  clt.resize( medoids.size(), std::set<ObjectId>() );
   for ( size_t obj = 0; obj < n_objects(); ++ obj ) {
     ClusterId clustId = clusters[obj];
     clt[clustId].insert(obj);
