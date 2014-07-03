@@ -256,7 +256,7 @@ PAM_Partition& PAM::operator()( const DataMatrix& dataMat, Distance& dist, const
       }
     }          
     if ( step++ > MAX_STEPS ) break; // make no sense if MAX_STEPS = 0
-    // if ( maxGain < tolerance ) break;
+    if ( maxGain < tolerance ) break;
     partition.set_cluster( maxObject, maxCluster );
     partition.set_medoid( maxCluster, maxObject );
 
