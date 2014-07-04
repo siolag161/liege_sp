@@ -30,7 +30,9 @@ using namespace clustering;
 ApplicationOptions getProgramOptions(int argc, char** argv);
 void checkInputFiles( std::string& path, std::string filename );
 void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::string clustFN );
-
+void saveClusteringComparation( const PAM& pam, const std::vector<unsigned>& ids,
+                                std::vector<Label>& labels,
+                                std::string clustFN );
 /**
  * @todo: merge this and CAST
  */
@@ -89,13 +91,15 @@ int main(int argc, char** argv) {
   } else {
     boost::filesystem::create_directories(outputPath.parent_path());
   }
-  saveClustering( pam, ids, outputFileName ) ;
-  std::cout << "to clustering..." << std::endl;
-  auto clt = partition.to_clustering();
+  // saveClustering( pam, ids, outputFileName ) ;
+  saveClusteringComparation( pam, ids, labels, outputFileName );
+      
+  // std::cout << "to clustering..." << std::endl;
+  // auto clt = partition.to_clustering();
   
-  for ( size_t i = 0; i < clt.size(); ++i ) {
-    // printf("clt[%d]: %d\n", i, clt.at(i).size());
-  }
+  // for ( size_t i = 0; i < clt.size(); ++i ) {
+  //   // printf("clt[%d]: %d\n", i, clt.at(i).size());
+  // }
 }
 
 
@@ -163,6 +167,39 @@ static const std::string LEVEL = "level"; static const std::string POSITION = "p
 static const std::string CARDINALITY = "cardinality";
 static const std::string PARENT_ID = "parent_id";
 static const char SEPARATOR = ',';
+static const std::string CHR = "chr"; 
+static const std::string CLUSTER = "cluster"; 
+
+
+void saveClusteringComparation( const PAM& pam, const std::vector<unsigned>& ids,
+                                std::vector<Label>& labels,
+                                std::string clustFN ) { 
+  std::ofstream clustOut(clustFN);
+  std::cout << "saving clustering of " << pam.get_partition().n_clusters() << " clusters into " << clustFN << std::endl;
+
+  clustOut << CHR << SEPARATOR
+           << ID << SEPARATOR
+           << LABEL << SEPARATOR
+           << CLUSTER <<"\n";  // writes header
+
+  std::string chr = "chr2";
+  for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
+    std::cout << var << " ";
+    ClusterId cluster_id = pam.get_partition().cluster_of(var);
+    std::cout << cluster_id << " ";        
+    int id = ids[var];
+    std::cout << id << " ";
+    std::string label = labels[var];
+    std::cout << label << "\n";
+
+    clustOut << chr << SEPARATOR
+             << id << SEPARATOR
+             << label << SEPARATOR
+             << cluster_id <<"\n";  // writes header
+  }
+  clustOut.close();
+}
+
 
 void saveClustering( const PAM& pam, const std::vector<unsigned>& ids, std::string clustFN ) {  
   std::ofstream clustOut(clustFN);
