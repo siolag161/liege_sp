@@ -38,7 +38,7 @@ void saveClusteringComparation( const PAM& pam, const std::vector<unsigned>& ids
  */
 int main(int argc, char** argv) {
   int nProcessors=omp_get_max_threads();
-  omp_set_num_threads( std::max(nProcessors - 1,1) );
+  omp_set_num_threads( std::max(nProcessors - 2,1) );
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
 
   ApplicationOptions progOpt = getProgramOptions(argc, argv);  
