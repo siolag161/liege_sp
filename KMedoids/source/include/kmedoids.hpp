@@ -100,23 +100,11 @@ struct PAM {
 
   const PAM_Partition& get_partition() const { return partition; }
  private:
-  /**
-   */
-  // template< class DataMatrix, class Distance >
-  // void init_medoids( const DataMatrix& dataMat, Distance& dist, const size_t k );
-  
+ 
  private:
   PAM_Partition partition;
   double eps; // epsilon
-  
-  // ///
-  // typedef boost::mt19937 random_type;
-  // random_type random;
-  // typedef boost::random_number_generator<random_type, unsigned long> rng_type;
-  // rng_type rng;
-
-  double total_dissimilarity;
-  
+  double total_dissimilarity;  
 };
 
 /**
@@ -176,22 +164,14 @@ double swap_gain( const PAM_Partition& partition,
                   Distance& dist );
 
 
-// template< class DataMatrix, class Distance >  
-// double ( const PAM_Partition& partition,
-//              const ClusterId& cid,
-//              const ObjectId& oid,
-//              const DataMatrix& dataMat,
-//              Distance& dist );
-
 template< class Distance >  
 double cost( const PAM_Partition& partition, ClusterId i, ObjectId h, Distance& distance) {
   double total = 0;
   for (ObjectId j = 0; j < partition.clusters.size(); j++) {
     ObjectId mi  = partition.medoids[i];                // object id of medoid i
-    double    dhj = distance(h, j);               // distance between object h and object j
-      
+    double dhj = distance(h, j);               // distance between object h and object j      
     ObjectId mj1 = partition.medoids[partition.clusters[j]];   // object id of j's nearest medoid
-    double    dj1 = distance(mj1, j);             // distance to j's nearest medoid
+    double dj1 = distance(mj1, j);             // distance to j's nearest medoid
 
     // check if distance bt/w medoid i and j is same as j's current nearest medoid.
     if (distance(mi, j) == dj1) {
@@ -233,8 +213,6 @@ PAM_Partition& PAM::operator()( const DataMatrix& dataMat, Distance& dist, const
   while (true) {
     // initial cluster setup
     std::cout << "\n\nbegin step: " << (step+1) << std::endl;
-    // std::cout << "assigning to clusters..." << std::endl;
-    // assign_objects_to_clusters( partition, dataMat, dist );
     total_dissimilarity = assign_objects_to_clusters( partition, dataMat, dist );// assign_objects_to_clusters(matrix_distance(distance));
     //vars to keep track of minimum
     double maxGain = 0.0;
@@ -243,18 +221,22 @@ PAM_Partition& PAM::operator()( const DataMatrix& dataMat, Distance& dist, const
 
     std::cout << "check swapping..." << std::endl;
 
-    
+   #pragma omp parallel for schedule(static) collapse(2)
     for ( ClusterId cid = 0; cid < K; ++ cid ) {
       for ( ObjectId oid = 0; oid < partition.n_objects(); ++ oid ) {
         if ( partition.is_medoid(oid) ) continue;
         double currGain = swap_gain( partition, cid, oid, dist ); // computes the gain
         if ( currGain > maxGain ) {
-          maxGain = currGain;
-          maxCluster = cid;
-          maxObject = oid;
+          #pragma omp critical
+          {            
+            maxGain = currGain;
+            maxCluster = cid;
+            maxObject = oid;
+          }
         }
       }
-    }          
+    }
+    
     if ( step++ > MAX_STEPS ) break; // make no sense if MAX_STEPS = 0
     if ( maxGain < tolerance ) break;
     partition.set_cluster( maxObject, maxCluster );
@@ -313,9 +295,32 @@ double swap_gain( const PAM_Partition& partition,
                   Distance& dist )
 {
   double total_gain = 0.0;
-  #pragma omp parallel for reduction( + : total_gain ) schedule(dynamic)
-  for ( ObjectId i = 0; i < partition.n_objects(); ++i ) {
-    total_gain += swap_gain( partition, c, h, i, dist );
+  for ( ObjectId j = 0; j < partition.n_objects(); ++j ) {
+    // += swap_gain( partition, c, h, i, dist );
+
+    double NO_IMPACT = 0.0;
+    if ( partition.is_medoid(j) ) return NO_IMPACT;
+    if (j == h ) return NO_IMPACT;
+
+    MedoidId i = partition.medoid_of(c);
+  
+    double gain = 0.0;
+    Diss d_jj = dist(j, partition.medoid_of( partition.cluster_of(j) ) );
+    Diss d_ji = dist(j, i);
+
+    Diss d_jh = dist(j, h);
+    if ( d_ji > d_jj ) { // removing m has no impact
+      gain = std::max( d_jj - d_jh, 0.0 );
+    } else if (d_ji == d_jj ) { // m is currently the nearest neighbour for j
+      Diss d_jj2 = dist(j, partition.medoid_of( partition.sec_clusters[j]) );
+      if ( d_jh < d_jj2 ) { // if swap then h becomes j's medoid
+        gain = d_jj - d_jh;
+      } else { // the second now becomes j's medoid if swapped
+        gain = d_jj - d_jj2;
+      }
+    }
+
+    total_gain += gain;
   }
   return total_gain;
 }
@@ -331,7 +336,6 @@ double object_total_diss( const ObjectId i,
                           const DataMatrix& dataMat,
                           Distance& dist ) {
   double total = 0.0;
-  #pragma omp parallel for reduction( + : total )
   for ( ObjectId j = 0; j < partition.n_objects(); ++j ) {
     total += dist(i, j);     
   }
@@ -350,19 +354,17 @@ Obj_Diss object_most_similar( const PAM_Partition& partition,
   size_t nbrObjects = dataMat.size();
   ObjectId minDisSimId = 0;
   double minDisSim = std::numeric_limits<double>::max();
+
   for ( ObjectId i = 0; i < nbrObjects; ++i ) {
     double total = 0.0;
-    #pragma omp parallel for schedule(dynamic) 
     for ( ObjectId j = 0; j < partition.n_objects(); ++j ) {
       total += dist(i, j);     
+    }   
+    if ( total < minDisSim ) {
+      minDisSim = total;
+      minDisSimId = i;
     }
-    #pragma omp critical
-    {
-      if ( total < minDisSim ) {
-        minDisSim = total;
-        minDisSimId = i;
-      }
-    }
+    
   }
   return Obj_Diss( minDisSimId, minDisSim );
 }
@@ -376,7 +378,6 @@ double object_gain( const ObjectId oid,
                     const DataMatrix& dataMat,
                     Distance& dist ) {
   double gain = 0.0;
-  #pragma omp parallel for reduction( + : gain ) // schedule(dynamic) 
   for ( size_t j = 0; j < partition.n_objects(); ++j ) {
     MedoidId medoid_j = partition.medoid_of( partition.cluster_of(j) );
     double dMedoid = dist( j, medoid_j );
@@ -400,11 +401,9 @@ Obj_Diss object_best_gain( const PAM_Partition& partition,
   ObjectId bestGainId = 0;
   double bestGain = 0.0; //-std::numeric_limits<double>::max();
 
-  #pragma omp parallel for schedule(dynamic) 
   for ( size_t i = 0; i < nbrObjects; ++i ) {
     if ( partition.is_medoid(i) ) continue;
     double gain = object_gain( i, partition, dataMat, dist );
-    #pragma omp critical
     {
       if ( gain >= bestGain ) {
         bestGain = gain;
@@ -428,11 +427,9 @@ std::pair< Obj_Diss, Obj_Diss> find_object_clusters( const ObjectId oid,
   Diss minD, min2D;
   minD = min2D = std::numeric_limits<double>::max();
   ClusterId minId = 0, min2Id = 0;
-   #pragma omp parallel for schedule(dynamic) 
   for ( ClusterId cid = 0; cid < partition.n_clusters(); ++cid ) {
     MedoidId mid = partition.medoid_of(cid);
     double d = dist( mid, oid );
-    #pragma omp critical
     {
       if ( d < minD || partition.medoids[cid] == oid )  {
         min2D = minD; min2Id = minId;
@@ -455,20 +452,38 @@ double assign_objects_to_clusters( PAM_Partition& partition,
 {
   if ( partition.sec_clusters.size() != partition.n_objects() ) {
     partition.sec_clusters.resize( partition.n_objects() );
-  }
-       
+  }  
+
+  
   double total_diss = 0.0;
 
-  #pragma omp parallel for schedule(dynamic) 
+  #pragma omp parallel for reduction(+: total_diss)
   for ( ObjectId oid = 0; oid < partition.n_objects(); ++ oid ) {
-    std::pair< Obj_Diss, Obj_Diss> clusters = find_object_clusters( oid, partition, dataMat, dist );    
-     #pragma omp critical
-    {
-       total_diss += clusters.first.second; // first -> minClust, second -> minDist
-       partition.set_cluster( oid, clusters.first.first ); // set best
-       partition.sec_clusters[oid] = clusters.second.first;
+    Diss minD, min2D;
+    minD = min2D = std::numeric_limits<double>::max();
+    ClusterId minId = 0, min2Id = 0;
+
+    for ( ClusterId cid = 0; cid < partition.n_clusters(); ++cid ) {
+      MedoidId mid = partition.medoid_of(cid);
+      double d = dist( mid, oid );
+      {
+        if ( d < minD || partition.medoids[cid] == oid )  {
+          min2D = minD; min2Id = minId;
+          minD = d; minId = cid;
+        } else if ( d < min2D) {
+          min2D = d; min2Id = cid;
+        }
+      }
     }
+ 
+    total_diss += minD; // first -> minClust, second -> minDist
+    #pragma omp critical
+    partition.set_cluster( oid, minId ); // set best
+    #pragma omp critical
+    partition.sec_clusters[oid] = min2Id;
+
   }
+
   return total_diss;
 }
 
@@ -483,43 +498,37 @@ void init_medoids( PAM_Partition& partition,
   
   partition.clear( dataMat.size() );
   assert( partition.medoids.size() == 1);
-  // the first medoid is the object that minimizes the diss w.r.t. the rest
-  Obj_Diss first_medoid = object_most_similar( partition, dataMat, dist );
-
-  partition.medoids[0] = first_medoid.first;
   std::cout << "init-find object most similar..." << std::endl;
-
-  std::cout << "init-assign object most similar..." << first_medoid.first << std::endl;
+  Obj_Diss first_medoid = object_most_similar( partition, dataMat, dist );
+  partition.medoids[0] = first_medoid.first;
   assign_objects_to_clusters( partition, dataMat, dist );
-
+  
   for ( size_t clust = 1; clust < K; ++clust ) {
-    if ( clust % 2 == 0 ) 
-      std::cout << "finding the " << clust << " medoid..." << std::endl;      
-     Obj_Diss objBestGain = object_best_gain( partition, dataMat, dist );
-    // MedoidId mid = objBestGain.first;
-    // // if ( clust % 10 == 0 ) 
-    // std::cout << "updating the cluster " << clust << " which has the " << mid << " medoid..." <<  std::endl;
-
     ObjectId best_obj = 0;
     double max_gain = -1.0;
-    for (size_t i = 0; i < dataMat.size(); i++) {
+    if ( clust % 10 == 0 )
+      std::cout << clust << " cluster " << std::endl;
+
+    //#pragma omp parallel for schedule(static) 
+    for (size_t i = 0; i < partition.n_objects(); i++) {
       if ( partition.is_medoid(i) ) continue;
       double gain = 0.0;
-      for (size_t j = 0; j < dataMat.size(); j++) {
+      //#pragma omp parallel for reduction(+: gain) 
+      for (size_t j = 0; j < partition.n_objects(); j++) {
         double Dj = dist(j, partition.medoids[ partition.clusters[j] ]);  // distance from j to its medoid
-        gain += std::max(Dj - dist(i,j), 0.0);                 // gain from selecting i  
+        double v = std::max(Dj - dist(i,j), 0.0);                 // gain from selecting i
+        gain += v;
       }
 
+      //#pragma omp critical
       if (gain >= max_gain) {   // set the next medoid to the object that 
         max_gain = gain;        // maximizes the gain function.
         best_obj = i;
       }
     }
-
+    
     partition.insert_medoid( best_obj );
-    // // if ( clust % 10 == 0 ) 
-    // std::cout << "assigning to this: " << clust << " medoids..." << std::endl;
-    assign_objects_to_clusters( partition, dataMat, dist );
+    assign_objects_to_clusters( partition, dataMat, dist );    
   }
 }
 

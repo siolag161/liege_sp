@@ -12,9 +12,9 @@
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp> // to obtain the program's name
 
-#include <boost/accumulators/accumulators.hpp>
-#include <boost/accumulators/statistics/stats.hpp>
-#include <boost/accumulators/statistics/median.hpp>
+// #include <boost/accumulators/accumulators.hpp>
+// #include <boost/accumulators/statistics/stats.hpp>
+// #include <boost/accumulators/statistics/median.hpp>
 
 #include "kmedoids.hpp"
 #include <omp.h>
@@ -184,13 +184,13 @@ void saveClusteringComparation( const PAM& pam, const std::vector<unsigned>& ids
 
   std::string chr = "chr2";
   for ( size_t var = 0; var < pam.get_partition().n_objects(); ++var ) {
-    std::cout << var << " ";
+    // std::cout << var << " ";
     ClusterId cluster_id = pam.get_partition().cluster_of(var);
-    std::cout << cluster_id << " ";        
+    // std::cout << cluster_id << " ";        
     int id = ids[var];
-    std::cout << id << " ";
+    // std::cout << id << " ";
     std::string label = labels[var];
-    std::cout << label << "\n";
+    // std::cout << label << "\n";
 
     clustOut << chr << SEPARATOR
              << id << SEPARATOR
