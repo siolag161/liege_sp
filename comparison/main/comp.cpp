@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
   //omp_set_num_threads(1);
   timer.start();
   std::vector< std::vector<double> > values ( progOpt.maxN - progOpt.minN + 1, std::vector<double>(measures.size(), 0.0) );
-  #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
   for ( int N = progOpt.minN; N <= progOpt.maxN; ++N ) {
     std::vector<SNP> ref_snps_f(ref_snps.begin(), ref_snps.begin() + N);
     SNP_Partition ref_snp_partition( ref_snps_f );
@@ -96,78 +96,78 @@ int main(int argc, char** argv) {
   cfile.close();
 }
 
-  /////////////////////////////////////////////////////////////////
-  ApplicationOptions getProgramOptions(int argc, char** argv)
-  {
-    ApplicationOptions result;
-    std::string appName = boost::filesystem::basename(argv[0]);
-    po::options_description optDesc("Options");
+/////////////////////////////////////////////////////////////////
+ApplicationOptions getProgramOptions(int argc, char** argv)
+{
+  ApplicationOptions result;
+  std::string appName = boost::filesystem::basename(argv[0]);
+  po::options_description optDesc("Options");
   
-    try  {
-      /** Define and parse the program options 
-       */
-      optDesc.add_options()
-          ("help,h", "Print help messages")
-          ("refinput,r", po::value<std::string>(&result.referenceClusteringFile)->required(), "Reference Clustering")
-          ("tarinput,c", po::value<std::string>(&result.targetClusteringFile)->required(), "Target Clustering")
-          ("assinput,a", po::value<std::string>(&result.assoFile)->required(), "Target Clustering")
-          ("out,o", po::value<std::string>(&result.outputPath)->required(), "Output")
-          ("minn,n", po::value<int>(&result.minN)->required(), "min Cut-level")
-          ("maxn,x", po::value<int>(&result.maxN)->required(), "max Cut-level")
+  try  {
+    /** Define and parse the program options 
+     */
+    optDesc.add_options()
+        ("help,h", "Print help messages")
+        ("refinput,r", po::value<std::string>(&result.referenceClusteringFile)->required(), "Reference Clustering")
+        ("tarinput,c", po::value<std::string>(&result.targetClusteringFile)->required(), "Target Clustering")
+        ("assinput,a", po::value<std::string>(&result.assoFile)->required(), "Asso test")
+        ("out,o", po::value<std::string>(&result.outputPath)->required(), "Output")
+        ("minn,n", po::value<int>(&result.minN)->required(), "min Cut-level")
+        ("maxn,x", po::value<int>(&result.maxN)->required(), "max Cut-level")
 
-          // ("thres,t", po::value<double>(&result.threshold)->required(), "Significance threshold")
-          ;
-      po::variables_map vm; 
-      try { 
-        po::store(po::command_line_parser(argc, argv).options(optDesc).run(), vm); // throws on error
-        if (vm.count("help") ) {
-          rad::OptionPrinter::printStandardAppDesc(appName,std::cout, optDesc, NULL);
-          exit(1);
-        }
-        po::notify(vm);   	    
-
-      } 
-      catch(boost::program_options::required_option& e) /** missing arguments **/
-      {
-        rad::OptionPrinter::formatRequiredOptionError(e);
-        std::cout << e.what() << std::endl << std::endl;
-        rad::OptionPrinter::printStandardAppDesc( appName,std::cout,
-                                                  optDesc, NULL);
-
-        exit(-1);
+        // ("thres,t", po::value<double>(&result.threshold)->required(), "Significance threshold")
+        ;
+    po::variables_map vm; 
+    try { 
+      po::store(po::command_line_parser(argc, argv).options(optDesc).run(), vm); // throws on error
+      if (vm.count("help") ) {
+        rad::OptionPrinter::printStandardAppDesc(appName,std::cout, optDesc, NULL);
+        exit(1);
       }
+      po::notify(vm);   	    
 
-    }
-    catch(std::exception e)    
+    } 
+    catch(boost::program_options::required_option& e) /** missing arguments **/
     {
-      std::cout << "Unhandled Exception reached the top of main: "
-                << e.what() << ", application will now exit" << std::endl;
+      rad::OptionPrinter::formatRequiredOptionError(e);
+      std::cout << e.what() << std::endl << std::endl;
+      rad::OptionPrinter::printStandardAppDesc( appName,std::cout,
+                                                optDesc, NULL);
 
-      rad::OptionPrinter::printStandardAppDesc(appName, std::cout, optDesc, NULL);
       exit(-1);
     }
 
-    return result;
+  }
+  catch(std::exception e)    
+  {
+    std::cout << "Unhandled Exception reached the top of main: "
+              << e.what() << ", application will now exit" << std::endl;
+
+    rad::OptionPrinter::printStandardAppDesc(appName, std::cout, optDesc, NULL);
+    exit(-1);
   }
 
+  return result;
+}
 
-  ////////////////////////////////////////////////////////////////////
-  /** checks if input exists and exists on giving the error message
-   *
-   */
-  void checkInputFiles( std::string& path, std::string filename ) {
-    if ( !boost::filesystem::exists( path ) )
-    {
-      std::cout << "Can't find " << filename << " at " << path << "! Program will now close." << std::endl;
-      exit(-1);
-    }
+
+////////////////////////////////////////////////////////////////////
+/** checks if input exists and exists on giving the error message
+ *
+ */
+void checkInputFiles( std::string& path, std::string filename ) {
+  if ( !boost::filesystem::exists( path ) )
+  {
+    std::cout << "Can't find " << filename << " at " << path << "! Program will now close." << std::endl;
+    exit(-1);
   }
+}
 
-  // std::vector<SNP> filter_snps( const std::vector<SNP>& snps, int N ) {  
-  //   if ( N > 0 ) {
-  //     std::vector<SNP> n_snps( snps.begin(), snps.begin() + N );
-  //     return n_snps;
-  //   }
+// std::vector<SNP> filter_snps( const std::vector<SNP>& snps, int N ) {  
+//   if ( N > 0 ) {
+//     std::vector<SNP> n_snps( snps.begin(), snps.begin() + N );
+//     return n_snps;
+//   }
 // }
 
 std::vector<double> read_association_test( std::string aFileName ) {
@@ -188,7 +188,6 @@ std::vector<double> read_association_test( std::string aFileName ) {
   }
   aFile.close();
 
-  //  std::cout << "load " << assoVec.size() << " p_values.\n";
   printf("load %d p_values (over %d)\n", assoVec.size(), nrows);
   return assoVec;
 }

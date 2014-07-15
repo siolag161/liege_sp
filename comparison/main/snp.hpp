@@ -28,21 +28,16 @@ struct SNP {
   double get_pvalue() const { return p_value; }
   int get_cluster() const { return cluster; }
   std::string get_algo() const { return algo; }
-
   
   int id;
   std::string label;
-  // int position;
   double p_value;
-  // std::string test;
   int cluster;
   std::string algo;
 
-  bool operator < (const SNP& o) const {
+  virtual bool operator < (const SNP& o) const {
     return this->p_value < o.p_value;
-  }
-
-  
+  }  
 };
 
 struct SNP_Partition {
@@ -70,7 +65,6 @@ struct SNP_Partition {
     }
 
     par2snp.resize( snps.size(), -1 );
-    // snp2par.resize( max_snp, -1 );
     for (size_t i = 0; i < snps.size(); ++i) {
       const SNP snp = snps.at(i);
       par2snp[i] = snp.get_id();

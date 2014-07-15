@@ -34,6 +34,7 @@ struct FowlkesIndex: public ComparisonMeasure {
         else if ( c_iA != c_jA && c_iB == c_jB) ++n_10;
       }      
 
+    // printf("11: %d, 00: %d, 01: %d, 10:%d\n", n_11, n_00, n_01, n_10);
     return std::sqrt( double(n_11*n_11)/ ((n_11+n_01)*(n_11+n_10)) );
   }
 

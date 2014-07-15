@@ -15,6 +15,9 @@
 #include <boost/lexical_cast.hpp>
 #include <iostream>
 
+namespace fltm
+{
+
 template< typename T >
 void loadDataTable( std::vector< std::vector<T> >& dt,
                     const std::string& infile,
@@ -24,7 +27,10 @@ void loadDataTable( std::vector< std::vector<T> >& dt,
   std::cout << "loading data" << std::endl << std::endl;
 
   std::ifstream matrixFile(infile.c_str());
-  if (!matrixFile) return;
+  if (!matrixFile) {
+    std::cout << "not exists..." << std::endl;
+    return;
+  }
    dt.reserve(100000);
 
   utility::CSVIterator<T> matrixLine(matrixFile);
@@ -43,56 +49,35 @@ void loadDataTable( std::vector< std::vector<T> >& dt,
 
 }
 
-void loadPhenotype( std::vector< int >& phenotype,
-                    // std::vector< std::string > & labels,
-                    // std::vector<unsigned>& ids,
-                    // std::vector< int >& positions,
-                    const std::string& infile ) {
+void loadLabelPosition( std::vector< std::string > & labels,
+                        std::vector<unsigned>& ids,
+                        std::vector< int >& positions,
+                        const std::string& infile )  {
   std::ifstream labPosFile(infile.c_str());
   if (!labPosFile) return;
-  // std::vector<std::string>().swap(labels); //lab2Pos.clear();
-  // std::vector<int>().swap(positions); //.clear();
-  utility::CSVIterator<std::string> labPosLine(labPosFile);// ++labPosLine;
-  for( ; labPosLine != utility::CSVIterator<std::string>(); ++labPosLine ) {    
-    // std::string label =  (*labPosLine)[2];
-    // int position = boost::lexical_cast<int>( (*labPosLine)[3]);
-    int pheno = boost::lexical_cast<int>( (*labPosLine)[0]);
-    // unsigned id = boost::lexical_cast<unsigned>( (*labPosLine)[1]);
-    phenotype.push_back(pheno);
-    // ids.push_back(id);
-    // labels.push_back(label);
-    // positions.push_back(position);
-  }
-
-  // std::cout << "load " << labels.size() << " variables.\n";
-}
-
-void loadLabelPosition( // std::vector< int >& phenotype,
-                     std::vector< std::string > & labels,
-                     std::vector<unsigned>& ids,
-                     std::vector< int >& positions,
-                    const std::string& infile ) {
-  std::ifstream labPosFile(infile.c_str());
-  if (!labPosFile) return;
-  // std::vector<std::string>().clear();
-  labels.clear();
-  // std::vector<int>().clear(); //.clear();
-  positions.clear();
+  std::vector<std::string>().swap(labels); //lab2Pos.clear();
+  std::vector<int>().swap(positions); //.clear();
   utility::CSVIterator<std::string> labPosLine(labPosFile);// ++labPosLine;
   for( ; labPosLine != utility::CSVIterator<std::string>(); ++labPosLine ) {    
     std::string label =  (*labPosLine)[2];
     int position = boost::lexical_cast<int>( (*labPosLine)[3]);
-    // int pheno = boost::lexical_cast<int>( (*labPosLine)[4]);
     unsigned id = boost::lexical_cast<unsigned>( (*labPosLine)[1]);
-    // phenotype.push_back(pheno);
     ids.push_back(id);
     labels.push_back(label);
     positions.push_back(position);
   }
 
-  // std::cout << "load " << labels.size() << " variables.\n";
+  std::cout << "load " << labels.size() << " variables.\n";
 }
 
+} // namespace clusteringends here. clustering
+
+/****************************** IMLEMENTATION BELOW THIS POINT **************************/
+namespace clustering
+{
+
+
+} // namespace clusteringends here. clustering
 
 /****************************************************************************************/
 #endif // CLUSTERING_DATALOAD_HPP

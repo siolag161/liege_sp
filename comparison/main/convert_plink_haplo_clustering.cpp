@@ -35,6 +35,7 @@ void checkInputFiles( std::string& path, std::string filename );
 
 void read_map( std::map< std::string, int >& label2id, std::map<int, std::string>& id2label,
                std::vector<int>& par2global, std::map<int,int>& global2par, std::string mapFileName );
+
 void read_partition( Partition&, std::string haplo, std::map< std::string, int >& label2id, std::vector<int>& par2global, std::map<int,int>& global2par  );
 
 void write_partition( Partition& partition, std::map<int, std::string>& id2label,
@@ -134,7 +135,6 @@ void read_map( std::map< std::string, int >& label2id, std::map<int, std::string
   unsigned nrows = std::count( std::istreambuf_iterator<char>(mFile), 
                                std::istreambuf_iterator<char>(), '\n' );
   mFile.seekg (0, std::ios::beg);
-  // id2label.resize( nrows, "");
   
   utility::CSVIterator<std::string> mLine(mFile);// ++labPosLine;
   int par_id = 0;

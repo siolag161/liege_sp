@@ -12,6 +12,8 @@ struct ApplicationOptions
 {
   std::string genoInFile; // input filename
   std::string phenoInFile; // input filename
+  std::string labelInFile; // input filename
+
   std::string outputDir; // input filename
   int codage;
   int permutation;

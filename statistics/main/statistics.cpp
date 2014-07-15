@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
   
   utl::Timer timer, totalTimer; timer.start(); totalTimer.start();
   ApplicationOptions progOpt = getProgramOptions(argc, argv);
-  checkInputFiles( progOpt.genoInFile, " data"); checkInputFiles( progOpt.phenoInFile, "label file");
+  checkInputFiles( progOpt.genoInFile, " data"); checkInputFiles( progOpt.phenoInFile, "pheno file");  checkInputFiles( progOpt.labelInFile, "label file");
 
   std::vector<Label> labels; std::vector<Position> positions; std::vector<unsigned> ids; std::vector<int> pheno;
   std::vector<std::vector<double> > pvalues;
@@ -52,8 +52,11 @@ int main(int argc, char** argv) {
   
   std::cout << "Loading geno data from " <<  progOpt.genoInFile << std::endl; // todo: logging
   loadDataTable ( genoMat, progOpt.genoInFile );
-  loadPhenotype( pheno, labels, ids, positions, progOpt.phenoInFile );
-
+  std::cout << "Loading pheno data from " <<  progOpt.genoInFile << std::endl; // todo: logging
+  loadPhenotype( pheno, progOpt.phenoInFile );
+  std::cout << "Loading label data from " <<  progOpt.genoInFile << std::endl; // todo: logging
+  loadLabelPosition( labels, ids, positions, progOpt.labelInFile );
+  
   std::cout << "Data loaded. takes: " <<  timer.display() << std::endl << std::endl; // todo: logging
   timer.restart();
 
@@ -92,7 +95,8 @@ ApplicationOptions getProgramOptions(int argc, char** argv)
          
         ("help,h", "Print help messages")
         ("dinput,i", po::value<std::string>(&result.genoInFile)->required(), "Geno Input filename")
-        ("hinput,h", po::value<std::string>(&result.phenoInFile)->required(), "Pheno Input filename")
+        ("tinput,t", po::value<std::string>(&result.phenoInFile)->required(), "Phenotype Input filename")
+        ("linput,l", po::value<std::string>(&result.labelInFile)->required(), "Label Input filename")
         ("outputDir,o", po::value<std::string>(&result.outputDir)->required(), "Output Directory")
         ("codage,c", po::value<int>(&result.codage)->required(), "Codage")
         ("permutation,p", po::value<int>(&result.permutation)->required(), "Permutation")        
