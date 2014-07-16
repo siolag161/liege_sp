@@ -19,7 +19,8 @@ using namespace fltm;
 
 void checkInputFiles( std::string& path, std::string filename );
 void saveImputedData( std::string dataPath, std::string labposPath,
-                      const FLTM_Data& input,
+                      const FLTM_Data& input,                      
+                      Matrix& mat,
                       const FLTM_Result& resultFLTM );
 void printOptions( Options& opt );
 AlgoClust* getAlgoClust( FLTM_Data& input, Options& opt );
@@ -67,7 +68,7 @@ int main(int argc, char** argv) {
   
   SingleGraphSave()( fltm_data.graph, outGraph );
   bayesGraphSave( fltm_data.graph, outBayesVertex, outBayesDist );  
-  saveImputedData( outImpDat, outImpLab, fltm_data, result );
+  saveImputedData( outImpDat, outImpLab, fltm_data, tmpMatrix, result );
 
   std::cout << "BYE...\n" << std::endl;
 
@@ -132,19 +133,25 @@ AlgoClust* getAlgoClust( FLTM_Data& input, Options& opt ) {
 
 void saveImputedData( std::string dataPath, std::string labposPath,
                       const FLTM_Data& input,
+                      Matrix& mat,
                       const FLTM_Result& result ) {
-  std::cout << "saving imputed data...\n" << std::endl;
+  //std::cout << "saving imputed data...\n" << std::endl;
+  // 
   ////////////////////////////////
   std::ofstream matOut(dataPath);
-  for(size_t row = 0; row < nrows(input.matrix); row++) {
-    for(size_t col = 0; col < ncols(input.matrix) - 1; col++) {
-      matOut << input.matrix[row][col] << ",";
+  printf("first: saving data of size: %d\n", (int)(nrows(mat)));
+
+  for(size_t row = 0; row < nrows(mat); row++) {
+    for(size_t col = 0; col < ncols(mat) - 1; col++) {
+      matOut << mat[row][col] << ",";
     }
-    if ( ncols(input.matrix) > 0) {
-      matOut << input.matrix[row][ncols(input.matrix)-1];
+    if ( ncols(mat) > 0) {
+      matOut << mat[row][ncols(mat)-1];
     }
     matOut << std::endl;
   }
+  printf("then: saving imputed data of size: %d\n", (int)(nrows(result.imputedData)));
+
   for(size_t row = 0; row < nrows(result.imputedData); row++) {
     for(size_t col = 0; col < ncols(result.imputedData) - 1; col++) {
       matOut << result.imputedData[row][col] << ",";
