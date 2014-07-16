@@ -50,21 +50,23 @@ int main(int argc, char** argv) {
   BayesGraphSave bayesGraphSave;
   ///////////////
   boost::filesystem::path outputPath = boost::filesystem::absolute(pos.outputFile);
-  std::string outBayesVertex, outBayesDist, outImpDat, outImpLab;
+  std::string outBayesVertex, outBayesDist, outImpDat, outImpLab, outGraph;
   boost::filesystem::create_directories(outputPath);
-  char bayesVertex_fn[256], bayesDist_fn[256], imputedDat_fn[256], imputedLab_fn[256];
+  char bayesVertex_fn[256], bayesDist_fn[256], imputedDat_fn[256], imputedLab_fn[256], graph_fn[256];
   sprintf( bayesVertex_fn, "fltm_%s_bayes_vertex.out", algoClust->name() );
   sprintf( bayesDist_fn, "fltm_%s_bayes_dist.out", algoClust->name() );
   sprintf( imputedDat_fn, "fltm_%s_imputedData.out", algoClust->name() );
   sprintf( imputedLab_fn, "fltm_%s_imputedLab.out", algoClust->name() );
+  sprintf( graph_fn, "fltm_%s_graph.out", algoClust->name() );
 
   outBayesVertex = (outputPath / bayesVertex_fn).string(),
       outBayesDist = (outputPath / bayesDist_fn).string(),
       outImpDat = (outputPath / imputedDat_fn).string(),
-      outImpLab = (outputPath / imputedLab_fn).string();
-
-
-  bayesGraphSave( fltm_data.graph, outBayesVertex, outBayesDist ); 
+      outImpLab = (outputPath / imputedLab_fn).string(),
+      outGraph = (outputPath / graph_fn).string();
+  
+  SingleGraphSave()( fltm_data.graph, outGraph );
+  bayesGraphSave( fltm_data.graph, outBayesVertex, outBayesDist );  
   saveImputedData( outImpDat, outImpLab, fltm_data, result );
 
   std::cout << "BYE...\n" << std::endl;
@@ -122,7 +124,7 @@ AlgoClust* getAlgoClust( FLTM_Data& input, Options& opt ) {
   } else {
     Simi* simi = new MutInfoSimi( input.matrix, input.positions, opt.fltm_maxDist, opt.fltm_simiThres );  
     algo = new CAST(simi,opt.cast_cast);
-    printf("CAST(%d,%.2f)\n", opt.cast_cast );
+    printf("CAST(%.2f)\n", opt.cast_cast );
   }
 
   return algo;
