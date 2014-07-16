@@ -24,7 +24,7 @@ struct Int2Type
 
 enum TestType { G2 = 0, G2_YATES, CHISQ, CHISQ_YATES, FISHER };
 
-template< unsigned int Test >
+template< int Test >
 struct StatisticTest {
   static const int test = (Test == G2) ? G2 :
                           (Test == G2_YATES) ? G2_YATES :
@@ -41,12 +41,12 @@ struct StatisticTest {
   template<class VecT>
   double operator()( const VecT& geno,
                      const VecT& pheno,
-                     const unsigned cardGenotype,
-                     const unsigned cardPhenotype ) const {
+                     const int cardGenotype,
+                     const int cardPhenotype ) const {
     std::vector< std::vector<double> > contingencyTab( cardGenotype, std::vector<double>(cardPhenotype, 0.0) );
-    for (unsigned i = 0; i < geno.size(); ++i) {
-      unsigned row = geno[i];
-      unsigned col = pheno[i];
+    for (int i = 0; i < geno.size(); ++i) {
+      int row = geno[i];
+      int col = pheno[i];
       ++contingencyTab[row][col];
     };
     return pval( contingencyTab, Int2Type<test>() );    
@@ -76,7 +76,7 @@ struct StatisticTest {
 namespace stats
 {
 
-template< unsigned int Test >
+template< int Test >
 template<class ContingencyTableT>
 double StatisticTest<Test>::pval( ContingencyTableT& mat, Int2Type<G2> ) const {
   TestG2 g2;
@@ -84,14 +84,14 @@ double StatisticTest<Test>::pval( ContingencyTableT& mat, Int2Type<G2> ) const {
 }
 
 
-template< unsigned int Test >
+template< int Test >
 template<class ContingencyTableT>
 double StatisticTest<Test>::pval( ContingencyTableT& mat, Int2Type<G2_YATES> ) const {
   TestG2 g2;
   return g2.gtest(mat, true);
 }
 
-template< unsigned int Test >
+template< int Test >
 template<class ContingencyTableT>
 double StatisticTest<Test>::pval( ContingencyTableT& mat, Int2Type<CHISQ> ) const {
   TestChiSquared chisq;
@@ -99,14 +99,14 @@ double StatisticTest<Test>::pval( ContingencyTableT& mat, Int2Type<CHISQ> ) cons
 }
 
 
-template< unsigned int Test >
+template< int Test >
 template<class ContingencyTableT>
 double StatisticTest<Test>::pval( ContingencyTableT& mat, Int2Type<CHISQ_YATES> ) const {
   TestChiSquared chisq;
   return chisq.chisqTest(mat, true);
 }
 
-template< unsigned int Test >
+template< int Test >
 template<class ContingencyTableT>
 double StatisticTest<Test>::pval( ContingencyTableT& mat, Int2Type<FISHER> ) const {
   TestFisher fisher;

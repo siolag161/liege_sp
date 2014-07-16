@@ -21,9 +21,9 @@ struct StatTest {
   StatTest(){}
   // StatisticTest( const std::string n ): name(n) {}
   virtual double execute( const GenoVec& geno,
-                             const PhenoVec& pheno,
-                             const unsigned cardGenotype,
-                            const unsigned cardPhenotype ) const = 0;
+                          const PhenoVec& pheno,
+                          const unsigned cardGenotype,
+                          const unsigned cardPhenotype ) const = 0;
   
   virtual double operator()( const GenoVec& geno,
                              const PhenoVec& pheno,

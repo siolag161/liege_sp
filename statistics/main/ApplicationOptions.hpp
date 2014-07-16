@@ -14,8 +14,11 @@ struct ApplicationOptions
   std::string phenoInFile; // input filename
   std::string labelInFile; // input filename
 
+  std::string graphBayesVertexInFile;
+  std::string graphBayesDistInFile;
+
   std::string outputDir; // input filename
-  int codage;
+  // int codage;
   int permutation;
   int verbose;
   
